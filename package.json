@@ -1,0 +1,21 @@
+{
+  "name": "prosthetic-hand",
+  "version": "0.0.0",
+  "description": "Automate synthetic touch/pointer events",
+  "main": "dist/prosthetic-hand.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node_modules/.bin/gobble",
+    "prepublish": "node_modules/.bin/gobble build -f dist/"
+  },
+  "author": "Iván Sánchez Ortega <ivan@sanchezortega.es>",
+  "license": "Beerware",
+  "devDependencies": {
+    "babel-preset-es2015-rollup": "^1.1.1",
+    "gobble": "^0.10.2",
+    "gobble-cli": "^0.6.0",
+    "gobble-leafdoc": "^0.1.7",
+    "gobble-rollup": "^0.25.0",
+    "rollup-plugin-babel": "^2.4.0"
+  }
+}

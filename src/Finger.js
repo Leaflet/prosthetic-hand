@@ -67,7 +67,15 @@ export default class Finger {
 	// 🖑method up(options?: {}): this
 	// Lifts the finger up.
 	up() {
-		return this.update({ down: true });
+		return this.update({ down: false });
+	}
+
+
+	// 🖑method wait(delay): this
+	// Don't move this finger for `delay` milliseconds.
+	wait(delay) {
+		this._queueMove({finalState: this._finalState, getState: this._falseFn, duration: delay});
+		return this;
 	}
 
 
@@ -80,7 +88,6 @@ export default class Finger {
 
 		return this._update();
 	}
-
 
 
 	// 🖑method reset(options?: {}): this
@@ -117,8 +124,8 @@ export default class Finger {
 // 					console.log('elapsed in a moveBy: ', msec, performance.now());
 					var percent = msec / delay;
 					return {
-						x: x1 + (dx * percent),
-						y: y1 + (dy * percent)
+						x: Math.round(x1 + (dx * percent)),
+						y: Math.round(y1 + (dy * percent))
 					}
 				}
 			})(fromX, fromY, x, y, delay),
@@ -160,7 +167,7 @@ export default class Finger {
 	_update() {
 		var now = performance.now();
 		var changed = false;
-		var previousState = Object.create(this._state);
+		var previousState = Object.assign({}, this._state);
 
 		// Process all moves that already happened (since last frame)
 		while (this._movements.length && this._movements[0].until < now) {
@@ -177,7 +184,7 @@ export default class Finger {
 
 			var updatedState = move.getState( now - this._movesFrom );
 
-			if (updatedState) {
+			if (updatedState && !this._statesAreEqual(updatedState, this._state)) {
 				changed = true;
 				Object.assign(this._state, updatedState);
 			}
@@ -186,23 +193,34 @@ export default class Finger {
 			//// Maybe the updates need to be coordinated by the hand (to trigger
 			//// touch events with several `Touch`es at the same time)
 			requestAnimationFrame(this._update.bind(this));
+
+// 			setTimeout(this._update.bind(this), 200);
+
 		}
 
 
 // 		// TODO: Add jitter if needed
 
 		if (changed) {
-			var evType = 'move';
 
-			if ((!previousState.down) && this._state.down) {
-				this._graphic.style.display = 'block';
-				evType = 'down';
-			} else if ((!previousState.down) && this._state.down){
-				this._graphic.style.display = 'none';
-				evType = 'up';
+			var evType;
+			if (previousState.x !== this._state.x || previousState.y !== this._state.y) {
+				evType = 'move'
 			}
 
-			console.log(this._asMouseEvent(evType));
+			if (previousState.down && (!this._state.down)) {
+				this._graphic.style.display = 'none';
+				evType = 'up';
+			} else if ((!previousState.down) && this._state.down){
+				this._graphic.style.display = 'block';
+				evType = 'down';
+			}
+
+// 			console.log(previousState.down, this._state.down);
+// 			console.log(this._asMouseEvent(evType));
+			if (evType) {
+				this._asMouseEvent(evType);
+			}
 
 // 			console.log('_updated to', this._state.x, this._state.y);
 // 			console.log('_updated to', this._state);
@@ -229,10 +247,23 @@ export default class Finger {
 	// Returns an instance of `PointerEvent` representing the current state of the finger
 	_asMouseEvent(evType) {
 
-		return new MouseEvent('mouse' + evType, {
+		var ev = new MouseEvent('mouse' + evType, {
+			bubbles: true,
+			button: 0,	// Moz doesn't use -1 when no buttons are pressed, WTF?
+			buttons: this._state.down ? 1 : 0,
+			detail: (evType === 'down' || evType === 'up') ? 1 : 0,	// TODO: count consecutive clicks
 			clientX: this._state.x,
 			clientY: this._state.y,
+			screenX: this._state.x,	/// TODO: Handle page scrolling
+			screenY: this._state.y,
+			pageX: this._state.x,
+			pageY: this._state.y,
+// 			target: document.elementFromPoint(this._state.x, this._state.y),	// works with viewport coords
 		});
+console.log(ev);
+// 		ev.target.dispatchEvent(ev);
+
+		document.elementFromPoint(ev.clientX, ev.clientY).dispatchEvent(ev);
 
 // 		this._update();
 	}
@@ -250,10 +281,11 @@ export default class Finger {
 		this._graphic.style.left       = 0;
 		this._graphic.style.marginLeft = '-25px';
 		this._graphic.style.marginTop  = '-25px';
+		this._graphic.style.pointerEvents = 'none';
 
 		this._graphic.innerHTML = '<circle cx="25" cy="25" r="20" stroke="rgba(0,0,0,0.3)" stroke-width="2" fill="rgba(0,0,0,0.1)"/>';
 
-// 		this._graphic.style.display = 'none';
+		this._graphic.style.display = 'none';
 		document.body.appendChild(this._graphic);
 	}
 
@@ -263,6 +295,18 @@ export default class Finger {
 	}
 
 
+	// Simple, non-deep comparison of hashmaps, used for comparing internal finger states.
+	// Returns `false` when one of the properties of s1 differs from the same property
+	// of s2 (or s2 doesn't have it). It ignores if s1 doesn't have all properties from
+	// s2.
+	_statesAreEqual(s1, s2) {
+		for (var i in s1) {
+			if (s1[i] !== s2[i]) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 
 }

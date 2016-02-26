@@ -10,3 +10,10 @@ unit-test touch gestures.
 
 
 
+## TODO
+
+Get some inspiration from:
+
+https://github.com/hammerjs/simulator/blob/master/index.js
+
+

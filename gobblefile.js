@@ -5,7 +5,6 @@ var gobble = require('gobble');
 
 var src = gobble('src');
 
-
 var rolledUpSrc = src.transform('rollup', {
 	entry: 'Hand.js',
 	dest: 'prosthetic-hand.js',
@@ -25,5 +24,7 @@ var doc = src.transform('leafdoc', {
 	leadingCharacter: '🖑'
 });
 
+var demos = gobble('demos').moveTo('demos');
 
-module.exports = gobble([rolledUpSrc, doc]);
+
+module.exports = gobble([rolledUpSrc, doc, demos]);

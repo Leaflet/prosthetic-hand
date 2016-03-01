@@ -1,5 +1,10 @@
 
+import IvansFinger from './IvansIndexFinger.js';
 
+// Self-incrementing identifier for touch ID and pointer ID.
+// Fingers can either keep the same ID for their life, or request a new
+//   ID whenever they go down.
+var fingerIdSequence = 1;
 
 // 🖑class Finger
 // Represents a finger, capable of performing single touch/pointer/mouse synthetic
@@ -11,7 +16,11 @@ export default class Finger {
 	// `touchscreen` or `touchpad`.
 	constructor(fingerMode, options) {
 
-		this._mode = fingerMode;
+		this._id = fingerIdSequence++;
+
+		this._mode = fingerMode || mouse;
+
+		this._hand = options.hand;
 
 		/// TODO: parkinsonFactor or shakesFactor or jitteryness or something
 
@@ -50,8 +59,27 @@ export default class Finger {
 		// Final state of the last movement (to calculate the next movement if needed).
 		this._finalState = Object.assign({}, this._state);
 
-		// This should be configurable with different graphics (namely, an image of my finger)
-		this._initGraphicCircle();
+		// This should be configurable with custom/more graphics
+		if (this._mode === 'touchscreen') {
+			this._initGraphicIvansFinger();
+		} else {
+			this._mode = 'mouse';
+			this._initGraphicCircle();
+		}
+
+
+		// Only used for `TouchEvent`s (as `Touch.target`): Will hold a
+		// reference to the DOM element on which the touch point started when
+		// it was first placed on the surface.
+		this._touchTargetWhenDowned = undefined;
+
+	}
+
+
+	// 🖑method isIdle(): Boolean
+	// Returns true when the finger has no more pending movements/waits/wiggles/etc.
+	isIdle() {
+		return !(this._movements.length);
 	}
 
 
@@ -86,7 +114,8 @@ export default class Finger {
 
 		this._queueMove({finalState: options, getState: this._falseFn, duration: 0});
 
-		return this._update();
+// 		return this._update();
+		return this;
 	}
 
 
@@ -136,7 +165,8 @@ export default class Finger {
 
 		this._queueMove(move);
 
-		return this._update();
+// 		return this._update();
+		return this;
 	}
 
 
@@ -159,13 +189,36 @@ export default class Finger {
 		Object.assign(this._finalState, this._finalState, move.finalState);
 // 		console.log('After queueing a movement, final state will be:', this._finalState);
 		this._movesUntil = move.until;
+
+		if (this._movements.length === 1) {
+			this._hand.fingerIsBusy();
+		}
 	}
 
 
-	// 🖑method private_update(): this
-	// Updates the private properties of the finger (x, y, timestamp)
-	_update() {
-		var now = performance.now();
+	/*
+	 * 🖑method getEvents(timestamp?: Number): []
+	 * Updates the private properties of the finger (x, y, timestamp) by
+	 * running the next movement(s) as far as indicated by the timestamp (or
+	 * as fas as to `performance.now()`), then checks if the state has changed
+	 * and means an event should be fired.
+	 *
+	 * Returns an array of objects of the form `{type: 'foo', event: MouseEvent(...)}`
+	 * or `{type: 'foo', touch: Touch(...)}`, with all the active `Touch`es or
+	 * all triggered mouse/pointer events triggered by executing moves until
+	 * `timestamp`.
+	 *
+	 * If the finger doesn't matter when `getEvents()` is called, then an empty
+	 * array is return instead. This happens for mice not moving, and fingers
+	 * not touching (fingers touching but not moving, and mice not pressing
+	 * but moving *do* matter).
+	 *
+	 * A `Hand` is reponsible for getting events (using loops, timings, or
+	 * whatever), requesting the right timestamps if needed, merging `Touch`es
+	 * into `TouchEvent`s, and firing the events via `dispatchEvent()`.
+	*/
+	getEvents(timestamp) {
+		var now = timestamp || performance.now();
 		var changed = false;
 		var previousState = Object.assign({}, this._state);
 
@@ -192,49 +245,93 @@ export default class Finger {
 			//// FIXME: Don't know if this is the right way to request the next movement
 			//// Maybe the updates need to be coordinated by the hand (to trigger
 			//// touch events with several `Touch`es at the same time)
-			requestAnimationFrame(this._update.bind(this));
+// 			requestAnimationFrame(this._update.bind(this));
 
-// 			setTimeout(this._update.bind(this), 200);
+// 			setTimeout(this._update.bind(this), 20);
 
+		} else {
+			this._hand.fingerIsIdle();
 		}
 
 
 // 		// TODO: Add jitter if needed
 
+		var evType = 'idle';
+
 		if (changed) {
 
-			var evType;
 			if (previousState.x !== this._state.x || previousState.y !== this._state.y) {
 				evType = 'move'
 			}
+			/// TODO: Detect over/out events when the event target changes.
 
 			if (previousState.down && (!this._state.down)) {
 				this._graphic.style.display = 'none';
+				this._touchTargetWhenDowned = undefined;
 				evType = 'up';
 			} else if ((!previousState.down) && this._state.down){
 				this._graphic.style.display = 'block';
+				this._touchTargetWhenDowned = document.elementFromPoint(this._state.x, this._state.y);
 				evType = 'down';
 			}
 
 // 			console.log(previousState.down, this._state.down);
 // 			console.log(this._asMouseEvent(evType));
-			if (evType) {
-				this._asMouseEvent(evType);
-			}
 
 // 			console.log('_updated to', this._state.x, this._state.y);
 // 			console.log('_updated to', this._state);
 			this._setGraphicPosition(this._state.x, this._state.y);
 		}
 
-		return this;
+
+		// `MouseEvent`s
+		if (this._mode === 'mouse' || this._mode === 'touchpad') {
+			if (evType === 'idle') {
+				return [];
+			}
+			/// TODO: Check for mouseover/mouseout events, add them to the
+			/// array.
+			/// TODO: Create synthetic `click` and `dblclick` events if/when
+			/// needed, add them to the array.
+			return [{ type: evType, event: this._asMouseEvent(evType) }];
+		}
+
+		// `Touch`es
+		if (this._mode === 'touchscreen') {
+			if (this._touchTargetWhenDowned) {
+				return [{ type: evType, touch: this._asTouch(evType) }];
+			} else {
+				return [];
+			}
+		}
+
+
+
+		return [];
 	}
+
+
 
 	// 🖑method private_asTouch(): Touch
 	// Returns an instance of `Touch` representing the current state of the finger
 	_asTouch() {
-// 		this._update();
 
+		var touch = new Touch({
+			identifier: this._id,
+			target: this._touchTargetWhenDowned,
+			clientX: this._state.x,
+			clientY: this._state.y,
+			screenX: this._state.x,	/// TODO: Handle page scrolling
+			screenY: this._state.y,
+			pageX: this._state.x,
+			pageY: this._state.y,
+			radiusX: 25,
+			radiusY: 25,
+			rotationAngle: 0,
+			force: 0.5
+		});
+
+		return touch;
 	}
 
 	// 🖑method private_asPointerEvent(): PointerEvent
@@ -260,12 +357,8 @@ export default class Finger {
 			pageY: this._state.y,
 // 			target: document.elementFromPoint(this._state.x, this._state.y),	// works with viewport coords
 		});
-console.log(ev);
-// 		ev.target.dispatchEvent(ev);
 
-		document.elementFromPoint(ev.clientX, ev.clientY).dispatchEvent(ev);
-
-// 		this._update();
+		return ev;
 	}
 
 
@@ -284,6 +377,25 @@ console.log(ev);
 		this._graphic.style.pointerEvents = 'none';
 
 		this._graphic.innerHTML = '<circle cx="25" cy="25" r="20" stroke="rgba(0,0,0,0.3)" stroke-width="2" fill="rgba(0,0,0,0.1)"/>';
+
+		this._graphic.style.display = 'none';
+		document.body.appendChild(this._graphic);
+	}
+
+	// Inits this._graphic to be an image of Ivan's index finger
+	_initGraphicIvansFinger() {
+
+		this._graphic = document.createElement('img');
+		this._graphic.src = IvansFinger;
+		this._graphic.style.height     = '160px';
+		this._graphic.style.width      = '160px';
+		this._graphic.style.zIndex     = 1000000;	// Some ridiculously high value
+		this._graphic.style.position   = 'absolute';
+		this._graphic.style.top        = 0;
+		this._graphic.style.left       = 0;
+		this._graphic.style.marginLeft = '-20px';
+		this._graphic.style.marginTop  = '-20px';
+		this._graphic.style.pointerEvents = 'none';
 
 		this._graphic.style.display = 'none';
 		document.body.appendChild(this._graphic);

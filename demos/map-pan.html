@@ -9,13 +9,28 @@
 		height:400px;
 		background: #eee;
 	}
+
+	body {
+		width: 100vw;
+		height: 100vh;
+		background: rgb(240, 255, 240);
+	}
+
 	</style>
+
+	<script>
+
+	// Make Leaflet believe we have a touchscreen
+	window.ontouchstart = function(){};
+
+	</script>
 
 	<link href="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.css" rel="stylesheet" type="text/css" />
 	<script src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.js"></script>
 
 <!-- 	<script src='dist/prosthetic-hand.js'/></script> -->
-	<script src='http://localhost:4567/prosthetic-hand.js'/></script>
+<!-- 	<script src='http://localhost:4567/prosthetic-hand.js'/></script> -->
+	<script src='../prosthetic-hand.js'/></script>
 
 
 
@@ -27,7 +42,8 @@
 
 	var h = new Hand('touch');
 
-	var f1 = h.growFinger('mouse');
+// 	var f1 = h.growFinger('mouse');
+	var f1 = h.growFinger('touchscreen');
 
 	f1.wait(1000).moveTo(200, 200, 0)
 		.down().moveBy(200, 0, 1000).up().wait(1000)
@@ -60,6 +76,12 @@
     map.on('mousedown mouseup', function(ev){
 // 		console.log('L: ', performance.now(), JSON.stringify(ev.originalEvent));
 		console.log('L: ', performance.now(), ev.originalEvent);
+	});
+
+//     L.DomEvent.on(document.body, 'touchstart touchend touchmove', function(ev){
+    L.DomEvent.on(document.body, 'touchstart touchend', function(ev){
+// 		console.log('L: ', performance.now(), JSON.stringify(ev.originalEvent));
+		console.log('B: ', ev.type, ev.touches.length, ev.changedTouches.length, ev.target, ev);
 	});
 //     map.on('mousemove', function(ev){ console.log(ev.originalEvent); });
 

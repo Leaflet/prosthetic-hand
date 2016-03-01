@@ -73,6 +73,10 @@ export default class Finger {
 		// it was first placed on the surface.
 		this._touchTargetWhenDowned = undefined;
 
+		// For checking mouseover/mouseout/pointerover/pointerout events, and
+		// for checking whether a `Touch` should be in the `targetTouches` `TouchList`
+		this._currentTarget = undefined;
+
 	}
 
 
@@ -203,8 +207,8 @@ export default class Finger {
 	 * as fas as to `performance.now()`), then checks if the state has changed
 	 * and means an event should be fired.
 	 *
-	 * Returns an array of objects of the form `{type: 'foo', event: MouseEvent(...)}`
-	 * or `{type: 'foo', touch: Touch(...)}`, with all the active `Touch`es or
+	 * Returns an array of objects of the form `{type: 'foo', event: MouseEvent(...), finger: Finger}`
+	 * or `{type: 'foo', touch: Touch(...), finger: Finger}`, with all the active `Touch`es or
 	 * all triggered mouse/pointer events triggered by executing moves until
 	 * `timestamp`.
 	 *
@@ -262,16 +266,18 @@ export default class Finger {
 
 			if (previousState.x !== this._state.x || previousState.y !== this._state.y) {
 				evType = 'move'
+				this._currentTarget = document.elementFromPoint(this._state.x, this._state.y);
 			}
 			/// TODO: Detect over/out events when the event target changes.
 
 			if (previousState.down && (!this._state.down)) {
 				this._graphic.style.display = 'none';
-				this._touchTargetWhenDowned = undefined;
 				evType = 'up';
 			} else if ((!previousState.down) && this._state.down){
+				// TODO: Optionally reset the finger ID and grab a fresh one
+
 				this._graphic.style.display = 'block';
-				this._touchTargetWhenDowned = document.elementFromPoint(this._state.x, this._state.y);
+				this._touchTargetWhenDowned = this._currentTarget;
 				evType = 'down';
 			}
 
@@ -293,19 +299,23 @@ export default class Finger {
 			/// array.
 			/// TODO: Create synthetic `click` and `dblclick` events if/when
 			/// needed, add them to the array.
-			return [{ type: evType, event: this._asMouseEvent(evType) }];
+			return [{ type: evType, event: this._asMouseEvent(evType), finger: this }];
 		}
 
 		// `Touch`es
 		if (this._mode === 'touchscreen') {
 			if (this._touchTargetWhenDowned) {
-				return [{ type: evType, touch: this._asTouch(evType) }];
+
+				var ret = [{ type: evType, touch: this._asTouch(evType), finger: this }];
+				if (evType === 'up') {
+					this._touchTargetWhenDowned = undefined;
+				}
+
+				return ret;
 			} else {
 				return [];
 			}
 		}
-
-
 
 		return [];
 	}

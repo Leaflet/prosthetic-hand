@@ -68,7 +68,7 @@ class Hand {
 			}
 		}
 
-		console.log('Hand is idle.');
+// 		console.log('Hand is idle.');
 		this._fingersAreIdle = true;
 
 		//// TODO: Stop the event loop
@@ -86,9 +86,12 @@ class Hand {
 		var now = performance.now();
 		var events = [];
 		var touches = [];
+		var changedTouches = [];
 
 		var hasTouchStart = false;
+		var touchStartTarget = undefined;
 		var hasTouchEnd = false;
+		var touchEndTarget = undefined;
 
 		for (var f of this._fingers) {
 
@@ -102,9 +105,17 @@ class Hand {
 					touches.push(ev.touch);
 					if (ev.type === 'down') {
 						hasTouchStart = true;
+						touchStartTarget = ev.touch.target;
+						// If several touches start in the same instant at
+						// the diffetent targets, this code will instead
+						// assume the last target.
 					}
 					if (ev.type === 'up') {
 						hasTouchEnd = true;
+						touchEndTarget = ev.touch.target;
+					}
+					if (ev.type !== 'idle') {
+						changedTouches.push(ev.touch);
 					}
 				}
 			}
@@ -115,12 +126,55 @@ class Hand {
 			document.elementFromPoint(ev.clientX, ev.clientY).dispatchEvent(ev);
 		}
 
+
+		/// Build *ONE* `TouchEvent` with `TouchList`s built with
+		/// the fingers' touches.
 		if (touches.length) {
-			/// TODO: Build *ONE* `TouchEvent` with `TouchList`s built with
-			/// the fingers' touches.
-// 			for (var t of touches) {
-//
-// 			}
+
+			var touchEvent;
+			var touchTarget;
+
+			if (hasTouchStart) {
+				// In case touches are added and removed on the same instant,
+				// `touchstart` takes precedence.
+
+				touchEvent = new TouchEvent("touchstart", {
+					cancelable: true,
+					bubbles: true,
+					touches: touches,
+					targetTouches: touches.filter( t => t.target === touchStartTarget ),
+					changedTouches: changedTouches
+				});
+				touchTarget = touchStartTarget;
+
+			} else if (hasTouchEnd) {
+
+				touchEvent = new TouchEvent("touchend", {
+					cancelable: true,
+					bubbles: true,
+					touches: touches,
+					target: touchEndTarget,
+					targetTouches: touches.filter( t => t.target === touchEndTarget ),
+					changedTouches: changedTouches
+				});
+				touchTarget = touchEndTarget;
+
+			} else {
+
+				touchTarget = touches[0].target;	// I have no idea what I'm doing!!!!1
+
+				touchEvent = new TouchEvent("touchmove", {
+					cancelable: true,
+					bubbles: true,
+					touches: touches,
+					targetTouches: touches.filter( t => t.target === touchTarget ),
+					changedTouches: changedTouches
+				});
+
+			}
+
+			touchTarget.dispatchEvent(touchEvent);
+
 		}
 
 		this._scheduleNextDispatch();
@@ -128,10 +182,12 @@ class Hand {
 		return this;
 	}
 
+
+
 	_scheduleNextDispatch(){
 		if (!this._fingersAreIdle) {
 			/// TODO: Different timings
-			setTimeout(this._dispatchEvents.bind(this), 50);
+			setTimeout(this._dispatchEvents.bind(this), 20);
 		}
 	}
 

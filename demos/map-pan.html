@@ -42,9 +42,18 @@
 	<p><button onclick='panWithTouch()'>Pan with emulated <tt>TouchEvent</tt>s</button></p>
 	<p><button onclick='panWithPen()'  >Pan with emulated <tt>PointerEvent</tt>s</button></p>
 
+	<p>
+	This demo runs the following code with different fingers:
+	<pre>
+finger.wait(1000).moveTo(200, 200, 0)
+	.down().moveBy(200, 0, 1000).up().wait(1000)
+	.down().moveBy(-200, 0, 1000).up().wait(1000);
+	</pre>
+	</p>
+
 	<script>
 
-	var h = new Hand('touch');
+	var h = new Hand();
 
 	var f1 = h.growFinger('mouse');
 	var f2 = h.growFinger('touch');
@@ -89,9 +98,5 @@
 //     map.on('mousemove', function(ev){ console.log(ev.originalEvent); });
 
   </script>
-</body>
-</html>
-
-
 </body>
 </html>

@@ -9,6 +9,19 @@ var fingerIdSequence = 1;
 // 🖑class Finger
 // Represents a finger, capable of performing single touch/pointer/mouse synthetic
 // events.
+
+/*
+🖑example
+
+```js
+var h = new Hand();
+var fatFinger = h.growFinger('pointer', { pointerType: 'touch', pressure: 0.9 });
+var lightFinger = h.growFinger('pointer', { pointerType: 'touch', pressure: 0.1 });
+
+fatFinger.wait(500).moveTo(200, 250, 0).down().moveBy(100, 150, 2000).up();
+```
+
+*/
 export default class Finger {
 
 	// 🖑factory Finger(eventMode: String, options?: Finger state): Finger
@@ -39,7 +52,7 @@ export default class Finger {
 			// 🖑option down: Boolean; Whether the finger is down (clicking/touching/pressing) or not. This is referred to as "active" in some of the events specifications.
 			down: false,
 
-			// 🖑option pressure: Number = 0.5; The value for [`Touch.force`](`https://developer.mozilla.org/docs/Web/API/Touch/force`) or [PointerEvent.pressure](https://developer.mozilla.org/docs/Web/API/PointerEvent/pressure), between `0.0` and `1.0`
+			// 🖑option pressure: Number = 0.5; The value for [`Touch.force`](`https://developer.mozilla.org/docs/Web/API/Touch/force`) or [`PointerEvent.pressure`](https://developer.mozilla.org/docs/Web/API/PointerEvent/pressure), between `0.0` and `1.0`
 			pressure: 0.5,
 
 			// 🖑option tiltX: Number = 0; The value for [`PointerEvent.tiltX`](https://developer.mozilla.org/docs/Web/API/PointerEvent/tiltX)
@@ -48,13 +61,13 @@ export default class Finger {
 			// 🖑option tiltY: Number = 0; The value for [`PointerEvent.tiltX`](https://developer.mozilla.org/docs/Web/API/PointerEvent/tiltY)
 			tiltY: 0,
 
-			// 🖑option width: Number = 25; The value for [`Touch.radiusX`](`https://developer.mozilla.org/docs/Web/API/Touch/radiusX`) or [PointerEvent.width](https://developer.mozilla.org/docs/Web/API/PointerEvent/width)
+			// 🖑option width: Number = 25; The value for [`Touch.radiusX`](`https://developer.mozilla.org/docs/Web/API/Touch/radiusX`) or [`PointerEvent.width`](https://developer.mozilla.org/docs/Web/API/PointerEvent/width)
 			width: 25,
 
-			// 🖑option radiusY: Number = 25; The value for [`Touch.radiusY`](`https://developer.mozilla.org/docs/Web/API/Touch/radiusY`) or [PointerEvent.height](https://developer.mozilla.org/docs/Web/API/PointerEvent/height)
+			// 🖑option radiusY: Number = 25; The value for [`Touch.radiusY`](`https://developer.mozilla.org/docs/Web/API/Touch/radiusY`) or [`PointerEvent.height`](https://developer.mozilla.org/docs/Web/API/PointerEvent/height)
 			height: 25,
 
-			// 🖑option pointerType: String = 'pen'; The value for [PointerEvent.pointerType](https://developer.mozilla.org/docs/Web/API/PointerEvent/pointerType)
+			// 🖑option pointerType: String = 'pen'; The value for [`PointerEvent.pointerType`](https://developer.mozilla.org/docs/Web/API/PointerEvent/pointerType)
 			pointerType: 'pen'
 		}, options);
 

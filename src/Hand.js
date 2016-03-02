@@ -3,10 +3,19 @@ import Finger from './Finger.js';
 
 // 🖑class Hand
 // Represents a set of `Finger`s, capable of performing synthetic touch gestures
+
+/*
+🖑example
+
+```js
+var h = new Hand({ timing: '20ms' });
+```
+
+*/
 class Hand {
 
 	// 🖑factory Hand(options?: Hand options): Hand
-	// Instantiates a new `Hand`. `eventMode` must be either `pointer` or `touch`.
+	// Instantiates a new `Hand` with the given options.
 	constructor(options) {
 
 		if (!options) {
@@ -39,8 +48,8 @@ class Hand {
 	}
 
 
-	// 🖑method growFinger(fingerMode, options): Finger
-	// Creates a new `Finger` with the same parameters as the `Finger` constructor,
+	// 🖑method growFinger(eventMode, options): Finger
+	// Creates a new `Finger` with the same parameters as the [`Finger` constructor](#finger-finger),
 	// and adds it to the hand.
 	growFinger(fingerMode, options) {
 

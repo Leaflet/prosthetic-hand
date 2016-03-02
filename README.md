@@ -9,6 +9,18 @@ unit-test touch gestures.
 
 
 
+## Build & test
+
+Run `npm install`, then `npm start`, then point your favourite web browser at
+`http://localhost:4567/demos/`
+
+Please note that in order to emulate `TouchEvent`s or `PointerEvent`s, your
+web browser must support (or polyfill) these events. Short version: use
+Chrome with running code that emulates `TouchEvents`, and IE11 or Edge when
+emulating `PointerEvent`s.
+
+
+
 
 ## TODO
 

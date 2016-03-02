@@ -12,13 +12,13 @@ var fingerIdSequence = 1;
 export default class Finger {
 
 	// 🖑factory Finger(eventMode: String, options?: {}): Finger
-	// Instantiates a new `Finger`. `fingerMode` must be either `pen`, `mouse`,
-	// `touchscreen` or `touchpad`.
-	constructor(fingerMode, options) {
+	// Instantiates a new `Finger`. `eventMode` must be `mouse`, `touch` or `pointer`
+	// for `MouseEvent`s, `TouchEvent`s or `PointerEvent`s,
+	constructor(eventMode, options) {
 
 		this._id = fingerIdSequence++;
 
-		this._mode = fingerMode || mouse;
+		this._mode = eventMode || 'mouse';
 
 		this._hand = options.hand;
 
@@ -62,6 +62,8 @@ export default class Finger {
 		// This should be configurable with custom/more graphics
 		if (this._mode === 'touchscreen') {
 			this._initGraphicIvansFinger();
+		} else if (this._mode === 'pen') {
+			this._initGraphicCircle();
 		} else {
 			this._mode = 'mouse';
 			this._initGraphicCircle();
@@ -302,6 +304,18 @@ export default class Finger {
 			return [{ type: evType, event: this._asMouseEvent(evType), finger: this }];
 		}
 
+		// `PointerEvent`s
+		if (this._mode === 'pen') {
+			if (evType === 'idle') {
+				return [];
+			}
+			/// TODO: Check for pointerover/pointerout events, add them to the
+			/// array.
+			/// TODO: Create synthetic `click` and `dblclick` events if/when
+			/// needed, add them to the array.
+			return [{ type: evType, event: this._asPointerEvent(evType), finger: this }];
+		}
+
 		// `Touch`es
 		if (this._mode === 'touchscreen') {
 			if (this._touchTargetWhenDowned) {
@@ -324,6 +338,8 @@ export default class Finger {
 
 	// 🖑method private_asTouch(): Touch
 	// Returns an instance of `Touch` representing the current state of the finger
+	// Note this is not an event - a `TouchEvent` must be created later, with several
+	// `Touch`es.
 	_asTouch() {
 
 		var touch = new Touch({
@@ -346,8 +362,29 @@ export default class Finger {
 
 	// 🖑method private_asPointerEvent(): PointerEvent
 	// Returns an instance of `PointerEvent` representing the current state of the finger
-	_asPointerEvent() {
-// 		this._update();
+	_asPointerEvent(evType) {
+		var ev = new PointerEvent('pointer' + evType, {
+			bubbles: true,
+			button: 0,	// Moz doesn't use -1 when no buttons are pressed, WTF?
+// 			buttons: this._state.down ? 1 : 0,
+// 			detail: (evType === 'down' || evType === 'up') ? 1 : 0,	// TODO: count consecutive clicks
+			clientX: this._state.x,
+			clientY: this._state.y,
+			screenX: this._state.x,	/// TODO: Handle page scrolling
+			screenY: this._state.y,
+			pageX: this._state.x,
+			pageY: this._state.y,
+			pointerType: 'pen',
+			pointerId: this._id,
+			isPrimary: this._id === 1,
+			width: 25,
+			height: 25,
+			tiltX: 0,
+			tiltY: 0,
+			pressure: 0.5
+// 			target: document.elementFromPoint(this._state.x, this._state.y),	// works with viewport coords
+		});
+		return ev;
 	}
 
 	// 🖑method private_asMouseEvent(evType: String): PointerEvent

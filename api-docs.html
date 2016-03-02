@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="utf-8">
+	<style>
+	table {
+		border-collapse: collapse;
+	}
+	table td, table th {
+		border: 1px solid #888;
+	}
+	pre code {
+		display: inline-block;
+		background: #eee;
+	}
+	td:last-child code {
+		background: #eee;
+	}
+	body {
+		font-family: Sans;
+	}
+	</style>
+</head>
+<body>
+	<h2>Leafdoc generated API reference</h2>
+
+	<h2 id='finger'>Finger</h2>
+<p>Represents a finger, capable of performing single touch/pointer/mouse synthetic
+events.</p>
+
+<h3 id='finger-factory'>Creation</h3>
+
+<section data-type='[object Object]'>
+
+
+<table><thead>
+	<tr>
+		<th>Instantiation</th>
+		<th>Description</th>
+	</tr>
+	</thead><tbody>
+	<tr id='finger-finger'>
+		<td><code>new <b>Finger</b>(<nobr>&lt;String&gt; <i>eventMode</i></nobr>, <nobr>&lt;Finger state&gt; <i>options?</i></nobr>)</nobr></code></td>
+		<td>Instantiates a new <a href="#finger"><code>Finger</code></a>. <code>eventMode</code> must be <code>mouse</code>, <code>touch</code> or <code>pointer</code>
+for <code>MouseEvent</code>s, <code>TouchEvent</code>s or <code>PointerEvent</code>s, respectively.</td>
+	</tr>
+</tbody></table>
+</section>
+
+<h3 id='finger-option'>Options</h3>
+
+<section data-type='[object Object]'>
+<h4 id='finger-finger-state'>Finger state</h4>
+The internal state of a <a href="#finger"><code>Finger</code></a> has options which will be reflected as
+properties of the events fired afterwards. Some of these state options
+apply only to a specific event mode.
+<table><thead>
+	<tr>
+		<th>Option</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</tr>
+	</thead><tbody>
+	<tr id='finger-x'>
+		<td><code><b>x</b></code></td>
+		<td><code>Number</code>
+		<td><code></code></td>
+		<td>The number of pixels from the left boundary the finger is at.</td>
+	</tr>
+	<tr id='finger-y'>
+		<td><code><b>y</b></code></td>
+		<td><code>Number</code>
+		<td><code></code></td>
+		<td>The number of pixels from the top boundary the finger is at.</td>
+	</tr>
+	<tr id='finger-down'>
+		<td><code><b>down</b></code></td>
+		<td><code>Boolean</code>
+		<td><code></code></td>
+		<td>Whether the finger is down (clicking/touching/pressing) or not. This is referred to as &quot;active&quot; in some of the events specifications.</td>
+	</tr>
+	<tr id='finger-pressure'>
+		<td><code><b>pressure</b></code></td>
+		<td><code>Number </code>
+		<td><code>0.5</code></td>
+		<td>The value for <a href="`https://developer.mozilla.org/docs/Web/API/Touch/force`"><code>Touch.force</code></a> or <a href="https://developer.mozilla.org/docs/Web/API/PointerEvent/pressure">PointerEvent.pressure</a>, between <code>0.0</code> and <code>1.0</code></td>
+	</tr>
+	<tr id='finger-tiltx'>
+		<td><code><b>tiltX</b></code></td>
+		<td><code>Number </code>
+		<td><code>0</code></td>
+		<td>The value for <a href="https://developer.mozilla.org/docs/Web/API/PointerEvent/tiltX"><code>PointerEvent.tiltX</code></a></td>
+	</tr>
+	<tr id='finger-tilty'>
+		<td><code><b>tiltY</b></code></td>
+		<td><code>Number </code>
+		<td><code>0</code></td>
+		<td>The value for <a href="https://developer.mozilla.org/docs/Web/API/PointerEvent/tiltY"><code>PointerEvent.tiltX</code></a></td>
+	</tr>
+	<tr id='finger-width'>
+		<td><code><b>width</b></code></td>
+		<td><code>Number </code>
+		<td><code>25</code></td>
+		<td>The value for <a href="`https://developer.mozilla.org/docs/Web/API/Touch/radiusX`"><code>Touch.radiusX</code></a> or <a href="https://developer.mozilla.org/docs/Web/API/PointerEvent/width">PointerEvent.width</a></td>
+	</tr>
+	<tr id='finger-radiusy'>
+		<td><code><b>radiusY</b></code></td>
+		<td><code>Number </code>
+		<td><code>25</code></td>
+		<td>The value for <a href="`https://developer.mozilla.org/docs/Web/API/Touch/radiusY`"><code>Touch.radiusY</code></a> or <a href="https://developer.mozilla.org/docs/Web/API/PointerEvent/height">PointerEvent.height</a></td>
+	</tr>
+	<tr id='finger-pointertype'>
+		<td><code><b>pointerType</b></code></td>
+		<td><code>String </code>
+		<td><code>&#x27;pen&#x27;</code></td>
+		<td>The value for <a href="https://developer.mozilla.org/docs/Web/API/PointerEvent/pointerType">PointerEvent.pointerType</a></td>
+	</tr>
+</tbody></table>
+</section>
+
+<h3 id='finger-method'>Methods</h3>
+
+<section data-type='[object Object]'>
+<h4 id='finger-finger-state'>Finger state</h4>
+
+<table><thead>
+	<tr>
+		<th>Method</th>
+		<th>Returns</th>
+		<th>Description</th>
+	</tr>
+	</thead><tbody>
+	<tr id='finger-isidle'>
+		<td><code><b>isIdle</b>()</nobr></code></td>
+		<td><code>Boolean</code></td>
+		<td>Returns true when the finger has no more pending movements/waits/wiggles/etc.</td>
+	</tr>
+	<tr id='finger-down'>
+		<td><code><b>down</b>(<nobr>&lt;{}&gt; <i>options?</i></nobr>)</nobr></code></td>
+		<td><code>this</code></td>
+		<td>Puts the finger down at the absolute <code>(x, y)</code> coordinates, optionally
+setting some details like pressure or touch angle (if they make sense
+to the current <code>fingerMode</code>).</td>
+	</tr>
+	<tr id='finger-up'>
+		<td><code><b>up</b>(<nobr>&lt;{}&gt; <i>options?</i></nobr>)</nobr></code></td>
+		<td><code>this</code></td>
+		<td>Lifts the finger up.</td>
+	</tr>
+	<tr id='finger-wait'>
+		<td><code><b>wait</b>(<nobr><i>delay</i></nobr>)</nobr></code></td>
+		<td><code>this</code></td>
+		<td>Don&#39;t move this finger for <code>delay</code> milliseconds.</td>
+	</tr>
+	<tr id='finger-update'>
+		<td><code><b>update</b>(<nobr>&lt;{}&gt; <i>options?</i></nobr>)</nobr></code></td>
+		<td><code>this</code></td>
+		<td>Updates some of the finger options, like pressure or touch angle,
+without disturbing its movement</td>
+	</tr>
+	<tr id='finger-reset'>
+		<td><code><b>reset</b>(<nobr>&lt;{}&gt; <i>options?</i></nobr>)</nobr></code></td>
+		<td><code>this</code></td>
+		<td>Clears all the queued movements for this finger and immediately lifts it up</td>
+	</tr>
+	<tr id='finger-moveto'>
+		<td><code><b>moveTo</b>(<nobr>&lt;Number&gt; <i>x</i></nobr>, <nobr>&lt;Number&gt; <i>y</i></nobr>, <nobr>&lt;Number&gt; <i>delay</i></nobr>, <nobr>&lt;{}&gt; <i>options?</i></nobr>)</nobr></code></td>
+		<td><code>this</code></td>
+		<td>Queues moving this finger to an absolute position at <code>(x, y)</code>; the
+movement will last for <code>delay</code> milliseconds.</td>
+	</tr>
+	<tr id='finger-moveby'>
+		<td><code><b>moveBy</b>(<nobr>&lt;Number&gt; <i>x</i></nobr>, <nobr>&lt;Number&gt; <i>y</i></nobr>, <nobr>&lt;Number&gt; <i>delay</i></nobr>, <nobr>&lt;{}&gt; <i>options?</i></nobr>)</nobr></code></td>
+		<td><code>this</code></td>
+		<td>Queues a move of this finger to an position relative to its last position
+plus<code>(x, y)</code>; the movement will last for <code>delay</code> milliseconds.</td>
+	</tr>
+	<tr id='finger-getevents'>
+		<td><code><b>getEvents</b>(<nobr>&lt;Number&gt; <i>timestamp?</i></nobr>)</nobr></code></td>
+		<td><code>[]</code></td>
+		<td>Updates the private properties of the finger (x, y, timestamp) by
+running the next movement(s) as far as indicated by the timestamp (or
+as fas as to <code>performance.now()</code>), then checks if the state has changed
+and means an event should be fired.
+Returns an array of objects of the form <code>{type: &#39;foo&#39;, event: MouseEvent(...), finger: Finger}</code>
+or <code>{type: &#39;foo&#39;, touch: Touch(...), finger: Finger}</code>, with all the active <code>Touch</code>es or
+all triggered mouse/pointer events triggered by executing moves until
+<code>timestamp</code>.
+If the finger doesn&#39;t matter when <code>getEvents()</code> is called, then an empty
+array is return instead. This happens for mice not moving, and fingers
+not touching (fingers touching but not moving, and mice not pressing
+but moving <em>do</em> matter).
+A <a href="#hand"><code>Hand</code></a> is reponsible for getting events (using loops, timings, or
+whatever), requesting the right timestamps if needed, merging <code>Touch</code>es
+into <code>TouchEvent</code>s, and firing the events via <code>dispatchEvent()</code>.</td>
+	</tr>
+	<tr id='finger-private_astouch'>
+		<td><code><b>private_asTouch</b>()</nobr></code></td>
+		<td><code>Touch</code></td>
+		<td>Returns an instance of <code>Touch</code> representing the current state of the finger
+Note this is not an event - a <code>TouchEvent</code> must be created later, with several
+<code>Touch</code>es.</td>
+	</tr>
+	<tr id='finger-private_aspointerevent'>
+		<td><code><b>private_asPointerEvent</b>()</nobr></code></td>
+		<td><code>PointerEvent</code></td>
+		<td>Returns an instance of <code>PointerEvent</code> representing the current state of the finger</td>
+	</tr>
+	<tr id='finger-private_asmouseevent'>
+		<td><code><b>private_asMouseEvent</b>(<nobr>&lt;String&gt; <i>evType</i></nobr>)</nobr></code></td>
+		<td><code>PointerEvent</code></td>
+		<td>Returns an instance of <code>PointerEvent</code> representing the current state of the finger</td>
+	</tr>
+</tbody></table>
+</section>
+
+<h2 id='hand'>Hand</h2>
+<p>Represents a set of <a href="#finger"><code>Finger</code></a>s, capable of performing synthetic touch gestures</p>
+
+<h3 id='hand-factory'>Creation</h3>
+
+<section data-type='[object Object]'>
+
+
+<table><thead>
+	<tr>
+		<th>Instantiation</th>
+		<th>Description</th>
+	</tr>
+	</thead><tbody>
+	<tr id='hand-hand'>
+		<td><code>new <b>Hand</b>(<nobr>&lt;Hand options&gt; <i>options?</i></nobr>)</nobr></code></td>
+		<td>Instantiates a new <a href="#hand"><code>Hand</code></a>. <code>eventMode</code> must be either <code>pointer</code> or <code>touch</code>.</td>
+	</tr>
+</tbody></table>
+</section>
+
+<h3 id='hand-option'>Options</h3>
+
+<section data-type='[object Object]'>
+
+
+<table><thead>
+	<tr>
+		<th>Option</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</tr>
+	</thead><tbody>
+	<tr id='hand-timing'>
+		<td><code><b>timing</b></code></td>
+		<td><code>'20ms'</code>
+		<td><code></code></td>
+		<td>Defines how often new events will be fired. If the value is a number
+followed by <code>&#39;ms&#39;</code>, then it specified how many milliseconds to wait
+between event dispatches.</td>
+	</tr>
+</tbody></table>
+</section>
+
+<h3 id='hand-method'>Methods</h3>
+
+<section data-type='[object Object]'>
+
+
+<table><thead>
+	<tr>
+		<th>Method</th>
+		<th>Returns</th>
+		<th>Description</th>
+	</tr>
+	</thead><tbody>
+	<tr id='hand-growfinger'>
+		<td><code><b>growFinger</b>(<nobr><i>fingerMode</i></nobr>, <nobr><i>options</i></nobr>)</nobr></code></td>
+		<td><code><a href='#finger'>Finger</a></code></td>
+		<td>Creates a new <a href="#finger"><code>Finger</code></a> with the same parameters as the <code>Finger</code> constructor,
+and adds it to the hand.</td>
+	</tr>
+	<tr id='hand-fingerisbusy'>
+		<td><code><b>fingerIsBusy</b>()</nobr></code></td>
+		<td><code>this</code></td>
+		<td>Used by this hand&#39;s fingers to signal that there are movements to be
+performed by at least one finger.</td>
+	</tr>
+	<tr id='hand-fingerisidle'>
+		<td><code><b>fingerIsIdle</b>()</nobr></code></td>
+		<td><code>this</code></td>
+		<td>Used by this hand&#39;s fingers to signal that one finger has finished doing
+all the queued movements.</td>
+	</tr>
+	<tr id='hand-private_dispatchevents'>
+		<td><code><b>private_dispatchEvents</b>()</nobr></code></td>
+		<td><code>this</code></td>
+		<td>Updates all the fingers, fetching their events/touchpoints, and dispatches
+all <code>Event</code>s triggered by the update.
+This is meant to be called on an internal timer.</td>
+	</tr>
+</tbody></table>
+</section>
+
+
+
+</body></html>

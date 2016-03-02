@@ -5,11 +5,13 @@ import Finger from './Finger.js';
 // Represents a set of `Finger`s, capable of performing synthetic touch gestures
 class Hand {
 
-	// 🖑factory Hand(eventMode: String, options?: {}): Hand
+	// 🖑factory Hand(options?: Hand options): Hand
 	// Instantiates a new `Hand`. `eventMode` must be either `pointer` or `touch`.
-	constructor(eventMode, options) {
+	constructor(options) {
 
-		this.eventMode = eventMode;
+		if (!options) {
+			options = {};
+		}
 
 		this._fingers = [];
 
@@ -17,6 +19,18 @@ class Hand {
 
 
 		/// TODO: Timing modes: minimal, interval, frames
+
+		// 🖑option timing(String): '20ms'
+		// Defines how often new events will be fired. If the value is a number
+		// followed by `'ms'`, then it specified how many milliseconds to wait
+		// between event dispatches.
+		this._timeInterval = 20;
+		if (options.timing) {
+			if (options.timing.toString().substr(-2) === 'ms') {
+				this._timeInterval = parseInt(options.timing);
+			}
+		}
+
 
 		// Cancellable reference to the next call to `_dispatchEvents`. This
 		// might be either a `setTimeout` reference or a `requestAnimationFrame`
@@ -102,7 +116,6 @@ class Hand {
 					events.push(ev.event);
 				}
 				if ('touch' in ev) {
-					touches.push(ev.touch);
 					if (ev.type === 'down') {
 						hasTouchStart = true;
 						touchStartTarget = ev.touch.target;
@@ -110,10 +123,16 @@ class Hand {
 						// the diffetent targets, this code will instead
 						// assume the last target.
 					}
+
 					if (ev.type === 'up') {
 						hasTouchEnd = true;
 						touchEndTarget = ev.touch.target;
+					} else {
+						// Touches which have just been lost must not be added
+						// to 'touches' or 'targetTouches'
+						touches.push(ev.touch);
 					}
+
 					if (ev.type !== 'idle') {
 						changedTouches.push(ev.touch);
 					}
@@ -129,7 +148,7 @@ class Hand {
 
 		/// Build *ONE* `TouchEvent` with `TouchList`s built with
 		/// the fingers' touches.
-		if (touches.length) {
+		if (touches.length || hasTouchEnd) {
 
 			var touchEvent;
 			var touchTarget;
@@ -146,8 +165,15 @@ class Hand {
 					changedTouches: changedTouches
 				});
 				touchTarget = touchStartTarget;
+// console.log('synthesizing touchstart', touchStartTarget, touchEvent);
 
 			} else if (hasTouchEnd) {
+
+				// This goes directly against the specifications!! They say:
+				// «touchend: The event's target is the same element that received
+				// the touchstart event corresponding to the touch point, even
+				// if the touch point has moved outside that element.»
+				touchEndTarget = document.elementFromPoint(changedTouches[0].clientX, changedTouches[0].clientY);
 
 				touchEvent = new TouchEvent("touchend", {
 					cancelable: true,
@@ -158,10 +184,15 @@ class Hand {
 					changedTouches: changedTouches
 				});
 				touchTarget = touchEndTarget;
+// console.log('synthesizing touchend', touchEndTarget, touchEvent);
 
 			} else {
 
-				touchTarget = touches[0].target;	// I have no idea what I'm doing!!!!1
+				// I have no idea what I'm doing!!!!1
+				// Apparently dispatching a touch event to the target of a touch
+				// will not work.
+// 				touchTarget = touches[0].target;
+				touchTarget = document.elementFromPoint(touches[0].clientX, touches[0].clientY);
 
 				touchEvent = new TouchEvent("touchmove", {
 					cancelable: true,
@@ -173,7 +204,10 @@ class Hand {
 
 			}
 
-			touchTarget.dispatchEvent(touchEvent);
+			if (changedTouches.length) {
+// console.log('Dispatching touch event:', touchEvent.type, touchEvent, touchTarget);
+				touchTarget.dispatchEvent(touchEvent);
+			}
 
 		}
 
@@ -182,12 +216,11 @@ class Hand {
 		return this;
 	}
 
-
-
 	_scheduleNextDispatch(){
 		if (!this._fingersAreIdle) {
-			/// TODO: Different timings
-			setTimeout(this._dispatchEvents.bind(this), 20);
+			if (this._timeInterval) {
+				setTimeout(this._dispatchEvents.bind(this), this._timeInterval);
+			}
 		}
 	}
 

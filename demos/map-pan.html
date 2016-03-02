@@ -20,8 +20,8 @@
 
 	<script>
 
-	// Make Leaflet believe we have a touchscreen
-// 	window.ontouchstart = function(){};
+	// Trick Leaflet into believing we have a touchscreen (Chrome)
+	window.ontouchstart = function(){};
 
 	</script>
 
@@ -47,8 +47,8 @@
 	var h = new Hand('touch');
 
 	var f1 = h.growFinger('mouse');
-	var f2 = h.growFinger('touchscreen');
-	var f3 = h.growFinger('pen');
+	var f2 = h.growFinger('touch');
+	var f3 = h.growFinger('pointer', { pointerType: 'pen' });
 
 	function panWithMouse() {
 		f1.wait(1000).moveTo(200, 200, 0)

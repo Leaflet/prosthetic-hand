@@ -24,12 +24,15 @@ emulating `PointerEvent`s.
 
 ## TODO
 
-* <s>Implement</s> Test `TouchEvent`s
-* Implement `PointerEvent`s
+* <s>Implement `TouchEvent`s</s>
+* <s>Test multi-finger `TouchEvent`s</s>
+* <s>Implement `PointerEvent`s</s>
+* Test multi-finger `PointerEvents`s
 * <s>Move the timing loop out of `Finger` and into `Hand`</s>
 * Allow setting the refresh time of the timing loop / sync to frames
 * Add a delay option to `Finger.up()` and `Finger.down()`
 * Allow to sync fingers (maybe via `Hand.syncFungers()` and/or ``
-* Get some inspiration from https://github.com/hammerjs/simulator/blob/master/index.js
-
-
+* <s>Get some inspiration from https://github.com/hammerjs/simulator/blob/master/index.js</s>
+* Implement some kind of wheel-scrolling
+* Implement `Hand`-level gestures (pinch, rotate, 2-, 3-, 4-finger pan)
+* Implement `ctrlKey`, `metaKey` and `shiftKey` event properties

@@ -11,9 +11,9 @@ var fingerIdSequence = 1;
 // events.
 export default class Finger {
 
-	// 🖑factory Finger(eventMode: String, options?: {}): Finger
+	// 🖑factory Finger(eventMode: String, options?: Finger state): Finger
 	// Instantiates a new `Finger`. `eventMode` must be `mouse`, `touch` or `pointer`
-	// for `MouseEvent`s, `TouchEvent`s or `PointerEvent`s,
+	// for `MouseEvent`s, `TouchEvent`s or `PointerEvent`s, respectively.
 	constructor(eventMode, options) {
 
 		this._id = fingerIdSequence++;
@@ -24,15 +24,40 @@ export default class Finger {
 
 		/// TODO: parkinsonFactor or shakesFactor or jitteryness or something
 
+
+		// 🖑section Finger state
+		// The internal state of a `Finger` has options which will be reflected as
+		// properties of the events fired afterwards. Some of these state options
+		// apply only to a specific event mode.
 		this._state = Object.assign({}, {
-			x: 0,	// Absolute
-			y: 0,	// Absolute
-			down: false
+			// 🖑option x: Number; The number of pixels from the left boundary the finger is at.
+			x: 0,
+
+			// 🖑option y: Number; The number of pixels from the top boundary the finger is at.
+			y: 0,
+
+			// 🖑option down: Boolean; Whether the finger is down (clicking/touching/pressing) or not. This is referred to as "active" in some of the events specifications.
+			down: false,
+
+			// 🖑option pressure: Number = 0.5; The value for [`Touch.force`](`https://developer.mozilla.org/docs/Web/API/Touch/force`) or [PointerEvent.pressure](https://developer.mozilla.org/docs/Web/API/PointerEvent/pressure), between `0.0` and `1.0`
+			pressure: 0.5,
+
+			// 🖑option tiltX: Number = 0; The value for [`PointerEvent.tiltX`](https://developer.mozilla.org/docs/Web/API/PointerEvent/tiltX)
+			tiltX: 0,
+
+			// 🖑option tiltY: Number = 0; The value for [`PointerEvent.tiltX`](https://developer.mozilla.org/docs/Web/API/PointerEvent/tiltY)
+			tiltY: 0,
+
+			// 🖑option width: Number = 25; The value for [`Touch.radiusX`](`https://developer.mozilla.org/docs/Web/API/Touch/radiusX`) or [PointerEvent.width](https://developer.mozilla.org/docs/Web/API/PointerEvent/width)
+			width: 25,
+
+			// 🖑option radiusY: Number = 25; The value for [`Touch.radiusY`](`https://developer.mozilla.org/docs/Web/API/Touch/radiusY`) or [PointerEvent.height](https://developer.mozilla.org/docs/Web/API/PointerEvent/height)
+			height: 25,
+
+			// 🖑option pointerType: String = 'pen'; The value for [PointerEvent.pointerType](https://developer.mozilla.org/docs/Web/API/PointerEvent/pointerType)
+			pointerType: 'pen'
 		}, options);
 
-		// 🖑option x: Number; The number of pixels from the left boundary the finger is at.
-		// 🖑option y: Number; The number of pixels from the top boundary the finger is at.
-		// 🖑option down: Boolean; Whether the finger is down (clicking/touching/pressing) or not.
 
 
 		// A "finger movement" is a plain hashmap that describes either a
@@ -60,10 +85,14 @@ export default class Finger {
 		this._finalState = Object.assign({}, this._state);
 
 		// This should be configurable with custom/more graphics
-		if (this._mode === 'touchscreen') {
+		if (this._mode === 'touch') {
 			this._initGraphicIvansFinger();
-		} else if (this._mode === 'pen') {
-			this._initGraphicCircle();
+		} else if (this._mode === 'pointer') {
+			if (this._state === 'touch') {
+				this._initGraphicIvansFinger();
+			} else {
+				this._initGraphicCircle();
+			}
 		} else {
 			this._mode = 'mouse';
 			this._initGraphicCircle();
@@ -192,8 +221,10 @@ export default class Finger {
 		move.until = this._movesUntil + move.duration;
 		this._movements.push(move);
 
-		Object.assign(this._finalState, this._finalState, move.finalState);
-// 		console.log('After queueing a movement, final state will be:', this._finalState);
+		this._finalState = move.finalState = Object.assign({}, this._finalState, move.finalState);
+// 		Object.assign(move.finalState, this._finalState);
+// 		console.log('After queueing a movement, final state at ', move.until, ' will be:', this._finalState);
+
 		this._movesUntil = move.until;
 
 		if (this._movements.length === 1) {
@@ -227,12 +258,13 @@ export default class Finger {
 		var now = timestamp || performance.now();
 		var changed = false;
 		var previousState = Object.assign({}, this._state);
-
+// console.log('State just before recalc:', now, this._state);
 		// Process all moves that already happened (since last frame)
 		while (this._movements.length && this._movements[0].until < now) {
-			Object.assign(this._state, this._movements[0].finalState);
-			this._movesFrom = this._movements[0].until;
-			this._movements.shift();
+			var done = this._movements.shift();
+// 			console.log('Popped move:', done, done.finalState);
+			Object.assign(this._state, done.finalState);
+			this._movesFrom = done.until;
 			changed = true;
 		}
 
@@ -273,6 +305,7 @@ export default class Finger {
 			/// TODO: Detect over/out events when the event target changes.
 
 			if (previousState.down && (!this._state.down)) {
+// 				console.log('lifting!', this._state);
 				this._graphic.style.display = 'none';
 				evType = 'up';
 			} else if ((!previousState.down) && this._state.down){
@@ -305,7 +338,7 @@ export default class Finger {
 		}
 
 		// `PointerEvent`s
-		if (this._mode === 'pen') {
+		if (this._mode === 'pointer') {
 			if (evType === 'idle') {
 				return [];
 			}
@@ -317,7 +350,7 @@ export default class Finger {
 		}
 
 		// `Touch`es
-		if (this._mode === 'touchscreen') {
+		if (this._mode === 'touch') {
 			if (this._touchTargetWhenDowned) {
 
 				var ret = [{ type: evType, touch: this._asTouch(evType), finger: this }];
@@ -354,7 +387,7 @@ export default class Finger {
 			radiusX: 25,
 			radiusY: 25,
 			rotationAngle: 0,
-			force: 0.5
+			force: this._state.pressure
 		});
 
 		return touch;
@@ -377,11 +410,11 @@ export default class Finger {
 			pointerType: 'pen',
 			pointerId: this._id,
 			isPrimary: this._id === 1,
-			width: 25,
-			height: 25,
-			tiltX: 0,
-			tiltY: 0,
-			pressure: 0.5
+			width: this._state.width,
+			height: this._state.height,
+			tiltX: this._state.tiltX,
+			tiltY: this._state.tiltY,
+			pressure: this._state.pressure
 // 			target: document.elementFromPoint(this._state.x, this._state.y),	// works with viewport coords
 		});
 		return ev;

@@ -1,6 +1,6 @@
 {
   "name": "prosthetic-hand",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Automate synthetic touch/pointer events",
   "main": "dist/prosthetic-hand.js",
   "scripts": {
@@ -11,6 +11,7 @@
   "author": "Iván Sánchez Ortega <ivan@sanchezortega.es>",
   "license": "Beerware",
   "devDependencies": {
+    "babel-plugin-transform-object-assign": "^6.5.0",
     "babel-preset-es2015-rollup": "^1.1.1",
     "gobble": "^0.10.2",
     "gobble-cli": "^0.6.0",

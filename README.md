@@ -30,7 +30,7 @@ Run `npm install`, then `npm start`, then point your favourite web browser at
 
 Please note that in order to emulate `TouchEvent`s or `PointerEvent`s, your
 web browser must support (or polyfill) these events. Short version: use
-Chrome with running code that emulates `TouchEvents`, and IE11 or Edge when
+Chrome when running code that emulates `TouchEvents`, and IE11 or Edge when
 emulating `PointerEvent`s.
 
 

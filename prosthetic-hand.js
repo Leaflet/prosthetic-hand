@@ -682,37 +682,12 @@ var Hand = function () {
 	}, {
 		key: 'fingerIsIdle',
 		value: function fingerIsIdle() {
-			var _iteratorNormalCompletion = true;
-			var _didIteratorError = false;
-			var _iteratorError = undefined;
 
-			try {
-
-				for (var _iterator = this._fingers[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-					var f = _step.value;
-
-					if (!f.isIdle()) {
-						return;
-					}
-				}
-
-				// 		console.log('Hand is idle.');
-			} catch (err) {
-				_didIteratorError = true;
-				_iteratorError = err;
-			} finally {
-				try {
-					if (!_iteratorNormalCompletion && _iterator.return) {
-						_iterator.return();
-					}
-				} finally {
-					if (_didIteratorError) {
-						throw _iteratorError;
-					}
-				}
+			if (this._fingers.every(function (f) {
+				return f.isIdle();
+			})) {
+				this._fingersAreIdle = true;
 			}
-
-			this._fingersAreIdle = true;
 
 			//// TODO: Stop the event loop
 		}
@@ -736,111 +711,46 @@ var Hand = function () {
 			var hasTouchEnd = false;
 			var touchEndTarget = undefined;
 
-			var _iteratorNormalCompletion2 = true;
-			var _didIteratorError2 = false;
-			var _iteratorError2 = undefined;
+			this._fingers.forEach(function (f) {
 
-			try {
-				for (var _iterator2 = this._fingers[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-					var f = _step2.value;
+				var evs = f.getEvents();
 
-
-					var evs = f.getEvents();
-
-					var _iteratorNormalCompletion4 = true;
-					var _didIteratorError4 = false;
-					var _iteratorError4 = undefined;
-
-					try {
-						for (var _iterator4 = evs[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-							var ev = _step4.value;
-
-							if ('event' in ev) {
-								events.push(ev.event);
-							}
-							if ('touch' in ev) {
-								if (ev.type === 'down') {
-									hasTouchStart = true;
-									touchStartTarget = ev.touch.target;
-									// If several touches start in the same instant at
-									// the diffetent targets, this code will instead
-									// assume the last target.
-								}
-
-								if (ev.type === 'up') {
-									hasTouchEnd = true;
-									touchEndTarget = ev.touch.target;
-								} else {
-									// Touches which have just been lost must not be added
-									// to 'touches' or 'targetTouches'
-									touches.push(ev.touch);
-								}
-
-								if (ev.type !== 'idle') {
-									changedTouches.push(ev.touch);
-								}
-							}
+				evs.forEach(function (ev) {
+					if ('event' in ev) {
+						events.push(ev.event);
+					}
+					if ('touch' in ev) {
+						if (ev.type === 'down') {
+							hasTouchStart = true;
+							touchStartTarget = ev.touch.target;
+							// If several touches start in the same instant at
+							// the diffetent targets, this code will instead
+							// assume the last target.
 						}
-					} catch (err) {
-						_didIteratorError4 = true;
-						_iteratorError4 = err;
-					} finally {
-						try {
-							if (!_iteratorNormalCompletion4 && _iterator4.return) {
-								_iterator4.return();
-							}
-						} finally {
-							if (_didIteratorError4) {
-								throw _iteratorError4;
-							}
+
+						if (ev.type === 'up') {
+							hasTouchEnd = true;
+							touchEndTarget = ev.touch.target;
+						} else {
+							// Touches which have just been lost must not be added
+							// to 'touches' or 'targetTouches'
+							touches.push(ev.touch);
+						}
+
+						if (ev.type !== 'idle') {
+							changedTouches.push(ev.touch);
 						}
 					}
-				}
+				});
+			});
 
-				// Fire all `MouseEvent`s and `PointerEvent`s
-			} catch (err) {
-				_didIteratorError2 = true;
-				_iteratorError2 = err;
-			} finally {
-				try {
-					if (!_iteratorNormalCompletion2 && _iterator2.return) {
-						_iterator2.return();
-					}
-				} finally {
-					if (_didIteratorError2) {
-						throw _iteratorError2;
-					}
-				}
-			}
+			// Fire all `MouseEvent`s and `PointerEvent`s
+			events.forEach(function (ev) {
+				document.elementFromPoint(ev.clientX, ev.clientY).dispatchEvent(ev);
+			});
 
-			var _iteratorNormalCompletion3 = true;
-			var _didIteratorError3 = false;
-			var _iteratorError3 = undefined;
-
-			try {
-				for (var _iterator3 = events[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-					var ev = _step3.value;
-
-					document.elementFromPoint(ev.clientX, ev.clientY).dispatchEvent(ev);
-				}
-
-				/// Build *ONE* `TouchEvent` with `TouchList`s built with
-				/// the fingers' touches.
-			} catch (err) {
-				_didIteratorError3 = true;
-				_iteratorError3 = err;
-			} finally {
-				try {
-					if (!_iteratorNormalCompletion3 && _iterator3.return) {
-						_iterator3.return();
-					}
-				} finally {
-					if (_didIteratorError3) {
-						throw _iteratorError3;
-					}
-				}
-			}
-
+			/// Build *ONE* `TouchEvent` with `TouchList`s built with
+			/// the fingers' touches.
 			if (touches.length || hasTouchEnd) {
 
 				var touchEvent;

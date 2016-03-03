@@ -29,6 +29,21 @@
 <p>Represents a finger, capable of performing single touch/pointer/mouse synthetic
 events.</p>
 
+<h3 id='finger-example'>Usage example</h3>
+
+<section data-type='[object Object]'>
+
+
+
+<pre><code class="lang-js">var h = new Hand();
+var fatFinger = h.growFinger(&#39;pointer&#39;, { pointerType: &#39;touch&#39;, pressure: 0.9 });
+var lightFinger = h.growFinger(&#39;pointer&#39;, { pointerType: &#39;touch&#39;, pressure: 0.1 });
+fatFinger.wait(500).moveTo(200, 250, 0).down().moveBy(100, 150, 2000).up();
+</code></pre>
+
+
+</section>
+
 <h3 id='finger-factory'>Creation</h3>
 
 <section data-type='[object Object]'>
@@ -85,7 +100,7 @@ apply only to a specific event mode.
 		<td><code><b>pressure</b></code></td>
 		<td><code>Number </code>
 		<td><code>0.5</code></td>
-		<td>The value for <a href="`https://developer.mozilla.org/docs/Web/API/Touch/force`"><code>Touch.force</code></a> or <a href="https://developer.mozilla.org/docs/Web/API/PointerEvent/pressure">PointerEvent.pressure</a>, between <code>0.0</code> and <code>1.0</code></td>
+		<td>The value for <a href="`https://developer.mozilla.org/docs/Web/API/Touch/force`"><code>Touch.force</code></a> or <a href="https://developer.mozilla.org/docs/Web/API/PointerEvent/pressure"><code>PointerEvent.pressure</code></a>, between <code>0.0</code> and <code>1.0</code></td>
 	</tr>
 	<tr id='finger-tiltx'>
 		<td><code><b>tiltX</b></code></td>
@@ -103,19 +118,19 @@ apply only to a specific event mode.
 		<td><code><b>width</b></code></td>
 		<td><code>Number </code>
 		<td><code>25</code></td>
-		<td>The value for <a href="`https://developer.mozilla.org/docs/Web/API/Touch/radiusX`"><code>Touch.radiusX</code></a> or <a href="https://developer.mozilla.org/docs/Web/API/PointerEvent/width">PointerEvent.width</a></td>
+		<td>The value for <a href="`https://developer.mozilla.org/docs/Web/API/Touch/radiusX`"><code>Touch.radiusX</code></a> or <a href="https://developer.mozilla.org/docs/Web/API/PointerEvent/width"><code>PointerEvent.width</code></a></td>
 	</tr>
 	<tr id='finger-radiusy'>
 		<td><code><b>radiusY</b></code></td>
 		<td><code>Number </code>
 		<td><code>25</code></td>
-		<td>The value for <a href="`https://developer.mozilla.org/docs/Web/API/Touch/radiusY`"><code>Touch.radiusY</code></a> or <a href="https://developer.mozilla.org/docs/Web/API/PointerEvent/height">PointerEvent.height</a></td>
+		<td>The value for <a href="`https://developer.mozilla.org/docs/Web/API/Touch/radiusY`"><code>Touch.radiusY</code></a> or <a href="https://developer.mozilla.org/docs/Web/API/PointerEvent/height"><code>PointerEvent.height</code></a></td>
 	</tr>
 	<tr id='finger-pointertype'>
 		<td><code><b>pointerType</b></code></td>
 		<td><code>String </code>
 		<td><code>&#x27;pen&#x27;</code></td>
-		<td>The value for <a href="https://developer.mozilla.org/docs/Web/API/PointerEvent/pointerType">PointerEvent.pointerType</a></td>
+		<td>The value for <a href="https://developer.mozilla.org/docs/Web/API/PointerEvent/pointerType"><code>PointerEvent.pointerType</code></a></td>
 	</tr>
 </tbody></table>
 </section>
@@ -219,6 +234,18 @@ Note this is not an event - a <code>TouchEvent</code> must be created later, wit
 <h2 id='hand'>Hand</h2>
 <p>Represents a set of <a href="#finger"><code>Finger</code></a>s, capable of performing synthetic touch gestures</p>
 
+<h3 id='hand-example'>Usage example</h3>
+
+<section data-type='[object Object]'>
+
+
+
+<pre><code class="lang-js">var h = new Hand({ timing: &#39;20ms&#39; });
+</code></pre>
+
+
+</section>
+
 <h3 id='hand-factory'>Creation</h3>
 
 <section data-type='[object Object]'>
@@ -232,7 +259,7 @@ Note this is not an event - a <code>TouchEvent</code> must be created later, wit
 	</thead><tbody>
 	<tr id='hand-hand'>
 		<td><code>new <b>Hand</b>(<nobr>&lt;Hand options&gt; <i>options?</i></nobr>)</nobr></code></td>
-		<td>Instantiates a new <a href="#hand"><code>Hand</code></a>. <code>eventMode</code> must be either <code>pointer</code> or <code>touch</code>.</td>
+		<td>Instantiates a new <a href="#hand"><code>Hand</code></a> with the given options.</td>
 	</tr>
 </tbody></table>
 </section>
@@ -274,9 +301,9 @@ between event dispatches.</td>
 	</tr>
 	</thead><tbody>
 	<tr id='hand-growfinger'>
-		<td><code><b>growFinger</b>(<nobr><i>fingerMode</i></nobr>, <nobr><i>options</i></nobr>)</nobr></code></td>
+		<td><code><b>growFinger</b>(<nobr><i>eventMode</i></nobr>, <nobr><i>options</i></nobr>)</nobr></code></td>
 		<td><code><a href='#finger'>Finger</a></code></td>
-		<td>Creates a new <a href="#finger"><code>Finger</code></a> with the same parameters as the <code>Finger</code> constructor,
+		<td>Creates a new <a href="#finger"><code>Finger</code></a> with the same parameters as the <a href="#finger-finger"><code>Finger</code> constructor</a>,
 and adds it to the hand.</td>
 	</tr>
 	<tr id='hand-fingerisbusy'>

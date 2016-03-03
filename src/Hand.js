@@ -85,14 +85,9 @@ class Hand {
 	// all the queued movements.
 	fingerIsIdle() {
 
-		for (var f of this._fingers) {
-			if (!f.isIdle()) {
-				return;
-			}
+		if (this._fingers.every( f => f.isIdle())) {
+			this._fingersAreIdle = true;
 		}
-
-// 		console.log('Hand is idle.');
-		this._fingersAreIdle = true;
 
 		//// TODO: Stop the event loop
 	}
@@ -116,11 +111,11 @@ class Hand {
 		var hasTouchEnd = false;
 		var touchEndTarget = undefined;
 
-		for (var f of this._fingers) {
+		this._fingers.forEach(f=> {
 
 			var evs = f.getEvents();
 
-			for (var ev of evs) {
+			evs.forEach( ev => {
 				if ('event' in ev) {
 					events.push(ev.event);
 				}
@@ -146,13 +141,13 @@ class Hand {
 						changedTouches.push(ev.touch);
 					}
 				}
-			}
-		}
+			});
+		});
 
 		// Fire all `MouseEvent`s and `PointerEvent`s
-		for (var ev of events) {
+		events.forEach( ev => {
 			document.elementFromPoint(ev.clientX, ev.clientY).dispatchEvent(ev);
-		}
+		});
 
 
 		/// Build *ONE* `TouchEvent` with `TouchList`s built with

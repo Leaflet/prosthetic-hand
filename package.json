@@ -1,6 +1,6 @@
 {
   "name": "prosthetic-hand",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Automate synthetic touch/pointer events",
   "main": "dist/prosthetic-hand.js",
   "scripts": {

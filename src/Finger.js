@@ -159,10 +159,7 @@ export default class Finger {
 	// Updates some of the finger options, like pressure or touch angle,
 	// without disturbing its movement
 	update(options) {
-
 		this._queueMove({finalState: options, getState: this._falseFn, duration: 0});
-
-// 		return this._update();
 		return this;
 	}
 
@@ -198,7 +195,6 @@ export default class Finger {
 
 			getState: (function(x1, y1, dx, dy){
 				return function(msec) {
-// 					console.log('elapsed in a moveBy: ', msec, performance.now());
 					var percent = msec / delay;
 					return {
 						x: Math.round(x1 + (dx * percent)),
@@ -213,7 +209,6 @@ export default class Finger {
 
 		this._queueMove(move);
 
-// 		return this._update();
 		return this;
 	}
 
@@ -235,8 +230,6 @@ export default class Finger {
 		this._movements.push(move);
 
 		this._finalState = move.finalState = Object.assign({}, this._finalState, move.finalState);
-// 		Object.assign(move.finalState, this._finalState);
-// 		console.log('After queueing a movement, final state at ', move.until, ' will be:', this._finalState);
 
 		this._movesUntil = move.until;
 
@@ -271,16 +264,13 @@ export default class Finger {
 		var now = timestamp || performance.now();
 		var changed = false;
 		var previousState = Object.assign({}, this._state);
-// console.log('State just before recalc:', now, this._state);
 		// Process all moves that already happened (since last frame)
 		while (this._movements.length && this._movements[0].until < now) {
 			var done = this._movements.shift();
-// 			console.log('Popped move:', done, done.finalState);
 			Object.assign(this._state, done.finalState);
 			this._movesFrom = done.until;
 			changed = true;
 		}
-
 
 		// Process ongoing movement
 		if (this._movements.length) {
@@ -293,17 +283,9 @@ export default class Finger {
 				Object.assign(this._state, updatedState);
 			}
 
-			//// FIXME: Don't know if this is the right way to request the next movement
-			//// Maybe the updates need to be coordinated by the hand (to trigger
-			//// touch events with several `Touch`es at the same time)
-// 			requestAnimationFrame(this._update.bind(this));
-
-// 			setTimeout(this._update.bind(this), 20);
-
 		} else {
 			this._hand.fingerIsIdle();
 		}
-
 
 // 		// TODO: Add jitter if needed
 
@@ -318,7 +300,6 @@ export default class Finger {
 			/// TODO: Detect over/out events when the event target changes.
 
 			if (previousState.down && (!this._state.down)) {
-// 				console.log('lifting!', this._state);
 				this._graphic.style.display = 'none';
 				evType = 'up';
 			} else if ((!previousState.down) && this._state.down){
@@ -329,11 +310,6 @@ export default class Finger {
 				evType = 'down';
 			}
 
-// 			console.log(previousState.down, this._state.down);
-// 			console.log(this._asMouseEvent(evType));
-
-// 			console.log('_updated to', this._state.x, this._state.y);
-// 			console.log('_updated to', this._state);
 			this._setGraphicPosition(this._state.x, this._state.y);
 		}
 

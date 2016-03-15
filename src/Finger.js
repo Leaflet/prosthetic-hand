@@ -1,5 +1,7 @@
 
 import IvansFinger from './IvansIndexFinger.js';
+import * as capabilities from './Capabilities.js';
+
 
 // Self-incrementing identifier for touch ID and pointer ID.
 // Fingers can either keep the same ID for their life, or request a new
@@ -100,15 +102,24 @@ export default class Finger {
 		// This should be configurable with custom/more graphics
 		if (this._mode === 'touch') {
 			this._initGraphicIvansFinger();
+			if (!capabilities.touch) {
+				console.warn('This browser cannot emulate touch events.');
+			}
 		} else if (this._mode === 'pointer') {
-			if (this._state === 'touch') {
+			if (this._state.pointerType === 'touch') {
 				this._initGraphicIvansFinger();
 			} else {
 				this._initGraphicCircle();
 			}
+			if (!capabilities.pointer) {
+				console.warn('This browser cannot emulate pointer events.');
+			}
 		} else {
 			this._mode = 'mouse';
 			this._initGraphicCircle();
+			if (!capabilities.mouse) {
+				console.warn('This browser cannot emulate mouse events.');
+			}
 		}
 
 
@@ -131,19 +142,17 @@ export default class Finger {
 	}
 
 
-	// 🖑method down(options?: {}): this
-	// Puts the finger down at the absolute `(x, y)` coordinates, optionally
-	// setting some details like pressure or touch angle (if they make sense
-	// to the current `fingerMode`).
-	down() {
-		return this.update({ down: true });
+	// 🖑method down(delay?: Number): this
+	// Puts the finger down, optionally after a delay.
+	down(delay) {
+		return this.update({ down: true, getState: this._falseFn, duration: delay || 0 });
 	}
 
 
 	// 🖑method up(options?: {}): this
-	// Lifts the finger up.
-	up() {
-		return this.update({ down: false });
+	// Lifts the finger up, after an optional delay.
+	up(delay) {
+		return this.update({ down: false, getState: this._falseFn, duration: delay || 0 });
 	}
 
 
@@ -157,9 +166,9 @@ export default class Finger {
 
 	// 🖑method update(options?: {}): this
 	// Updates some of the finger options, like pressure or touch angle,
-	// without disturbing its movement
-	update(options) {
-		this._queueMove({finalState: options, getState: this._falseFn, duration: 0});
+	// without disturbing its movement, after an optional delay.
+	update(options, delay) {
+		this._queueMove({finalState: options, getState: this._falseFn, duration: delay || 0});
 		return this;
 	}
 
@@ -239,12 +248,25 @@ export default class Finger {
 	}
 
 
+	// Returns the time when the next movement will be finished
+	// 🖑method getNextMoveEndTime(): Number|undefined
+	getNextMoveEndTime() {
+		if (!this._movements.length) {
+			return undefined;
+		}
+		return this._movements[0].until;
+	}
+
+
 	/*
-	 * 🖑method getEvents(timestamp?: Number): []
+	 * 🖑method getEvents(timestamp?: Number, justOne: Boolean): []
 	 * Updates the private properties of the finger (x, y, timestamp) by
 	 * running the next movement(s) as far as indicated by the timestamp (or
 	 * as fas as to `performance.now()`), then checks if the state has changed
 	 * and means an event should be fired.
+	 *
+	 * If `justOne` is set to truthy, then this will run just one movements.
+	 * Otherwise, it will run as many movements as needed until `timestamp` is reached.
 	 *
 	 * Returns an array of objects of the form `{type: 'foo', event: MouseEvent(...), finger: Finger}`
 	 * or `{type: 'foo', touch: Touch(...), finger: Finger}`, with all the active `Touch`es or
@@ -260,12 +282,12 @@ export default class Finger {
 	 * whatever), requesting the right timestamps if needed, merging `Touch`es
 	 * into `TouchEvent`s, and firing the events via `dispatchEvent()`.
 	*/
-	getEvents(timestamp) {
+	getEvents(timestamp, justOne) {
 		var now = timestamp || performance.now();
 		var changed = false;
 		var previousState = Object.assign({}, this._state);
 		// Process all moves that already happened (since last frame)
-		while (this._movements.length && this._movements[0].until < now) {
+		while (this._movements.length && this._movements[0].until <= now && !(changed && justOne)) {
 			var done = this._movements.shift();
 			Object.assign(this._state, done.finalState);
 			this._movesFrom = done.until;
@@ -273,7 +295,7 @@ export default class Finger {
 		}
 
 		// Process ongoing movement
-		if (this._movements.length) {
+		if (this._movements.length && !(changed && justOne)) {
 			var move = this._movements[0];
 
 			var updatedState = move.getState( now - this._movesFrom );
@@ -283,7 +305,9 @@ export default class Finger {
 				Object.assign(this._state, updatedState);
 			}
 
-		} else {
+		}
+
+		if (!this._movements.length) {
 			this._hand.fingerIsIdle();
 		}
 
@@ -412,7 +436,6 @@ export default class Finger {
 	// 🖑method private_asMouseEvent(evType: String): PointerEvent
 	// Returns an instance of `PointerEvent` representing the current state of the finger
 	_asMouseEvent(evType) {
-
 		var ev = new MouseEvent('mouse' + evType, {
 			bubbles: true,
 			button: 0,	// Moz doesn't use -1 when no buttons are pressed, WTF?

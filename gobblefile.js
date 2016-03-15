@@ -8,7 +8,9 @@ var src = gobble('src');
 var rolledUpSrc = src.transform('rollup', {
 	entry: 'Hand.js',
 	dest: 'prosthetic-hand.js',
-	format: 'cjs',
+// 	format: 'cjs',
+	format: 'umd',
+	moduleName: 'Hand',
 	sourceMap: true,
 	plugins: [
 		require('rollup-plugin-babel')()	// See also .babelrc

@@ -1,5 +1,9 @@
 
+# v1.1.0
 
+* Replaced timing loop with 5 different timing modes
+* Added delay option to `Finger.down()` and `Finger.up()`
+* Changed build system to produce a UMD file.
 
 # v1.0.3
 
@@ -23,9 +27,8 @@
 
 # TODO
 
+* Allow use of the deprecated `initEvent()` event creation functions (instead of `new Event()`), for PhantomJS.
 * Test multi-finger `PointerEvents`s
-* Allow setting the refresh time of the timing loop / sync to frames
-* Add a delay option to `Finger.up()` and `Finger.down()`
 * Allow to sync fingers (maybe via `Hand.syncFingers()` and/or `Finger.sync()`)
 * Implement some kind of wheel-scrolling for `MouseEvent` and `PointerEvent` fingers
 * Implement `Hand`-level gestures (pinch, rotate, 2-, 3-, 4-finger pan)

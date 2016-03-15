@@ -1,5 +1,6 @@
 
 import Finger from './Finger.js';
+import * as enums from './Enums.js';
 
 // 🖑class Hand
 // Represents a set of `Finger`s, capable of performing synthetic touch gestures
@@ -12,7 +13,7 @@ var h = new Hand({ timing: '20ms' });
 ```
 
 */
-class Hand {
+export default class Hand {
 
 	// 🖑factory Hand(options?: Hand options): Hand
 	// Instantiates a new `Hand` with the given options.
@@ -29,16 +30,59 @@ class Hand {
 
 		/// TODO: Timing modes: minimal, interval, frames
 
-		// 🖑option timing(String): '20ms'
-		// Defines how often new events will be fired. If the value is a number
-		// followed by `'ms'`, then it specified how many milliseconds to wait
-		// between event dispatches.
+		// 🖑option timing: Timing= '20ms'
+		// Defines how often new events will be fired, in one of the possible
+		// timing modes
+
+		// 🖑miniclass Timing (Hand)
 		this._timeInterval = 20;
+		this._timingMode = enums.INTERVAL;
+		this._framesPending = 0;
 		if (options.timing) {
-			if (options.timing.toString().substr(-2) === 'ms') {
-				this._timeInterval = parseInt(options.timing);
+			var timing = options.timing.toString();
+
+			// 🖑option ms
+			// Preceded by a number (e.g. `'20ms'`), this mode triggers an event
+			// dispatch every that many milliseconds.
+			if (timing.match(/^\d+ms$/)) {
+				this._timingMode = enums.INTERVAL;
+				this._timeInterval = parseInt(timing);
+			}
+
+			// 🖑option frame
+			// This mode dispatches an event every [animation frame](https://developer.mozilla.org/docs/Web/API/Window/requestAnimationFrame).
+			if (timing === 'frame') {
+				this._timingMode = enums.FRAME;
+				this._timeInterval = parseInt(timing);
+			}
+
+			// 🖑option minimal
+			// This mode triggers an event dispatch per finger change, and ensures
+			// that every move can trigger its own event (no two movements will be
+			// rolled into one event if they are very close).
+			if (timing === 'minimal') {
+				this._timingMode = enums.MINIMAL;
+				this._timeInterval = false;
+			}
+
+			// 🖑option instant
+			// Like the `minimal` mode, but ignores timings completely and dispatches
+			// all events instantaneously. This might cause misbehaviour in graphical
+			// browsers.
+			if (timing === 'instant') {
+				this._timingMode = enums.INSTANT;
+				this._timeInterval = false;
+			}
+
+			// 🖑option fastframe
+			// This mode ignores timings completely like the `instant` mode, and
+			// dispatches a new event every so many frames.
+			if (timing === 'fastframe') {
+				this._timingMode = enums.FASTFRAME;
+				this._timeInterval = parseInt(timing);
 			}
 		}
+		// 🖑class Hand
 
 
 		// Cancellable reference to the next call to `_dispatchEvents`. This
@@ -99,9 +143,9 @@ class Hand {
 	// Updates all the fingers, fetching their events/touchpoints, and dispatches
 	// all `Event`s triggered by the update.
 	// This is meant to be called on an internal timer.
-	_dispatchEvents(){
+	_dispatchEvents(timestamp) {
 
-		var now = performance.now();
+		var now = timestamp || performance.now();
 		var events = [];
 		var touches = [];
 		var changedTouches = [];
@@ -111,9 +155,13 @@ class Hand {
 		var hasTouchEnd = false;
 		var touchEndTarget = undefined;
 
+		var fast = this._timingMode === enums.MINIMAL ||
+		           this._timingMode === enums.INSTANT ||
+		           this._timingMode === enums.FASTFRAME;
+
 		this._fingers.forEach(f=> {
 
-			var evs = f.getEvents();
+			var evs = f.getEvents(now, fast);
 
 			evs.forEach( ev => {
 				if ('event' in ev) {
@@ -146,6 +194,7 @@ class Hand {
 
 		// Fire all `MouseEvent`s and `PointerEvent`s
 		events.forEach( ev => {
+// 			console.log('Dispatching: ', ev.type);
 			document.elementFromPoint(ev.clientX, ev.clientY).dispatchEvent(ev);
 		});
 
@@ -220,10 +269,41 @@ class Hand {
 		return this;
 	}
 
+
 	_scheduleNextDispatch(){
 		if (!this._fingersAreIdle) {
-			if (this._timeInterval) {
-				setTimeout(this._dispatchEvents.bind(this), this._timeInterval);
+
+			// Calculate time for next movement end. Could be refactored out for
+			// some timing modes.
+			var min = Infinity;
+			this._fingers.forEach(f=> {
+				if (!f.isIdle()) {
+					var next = f.getNextMoveEndTime();
+					// 						console.log('next:', next);
+					if (next < min) {
+						min = next;
+					}
+				}
+			});
+
+
+			if (this._timingMode === enums.INTERVAL) {
+				this._nextDispatch = setTimeout(this._dispatchEvents.bind(this), this._timeInterval);
+
+			} else if (this._timingMode === enums.MINIMAL) {
+				this._nextDispatch = setTimeout(this._dispatchEvents.bind(this), min - performance.now());
+
+			} else if (this._timingMode === enums.INSTANT) {
+				return this._dispatchEvents(min);
+
+			} else if (this._timingMode === enums.FRAME) {
+				this._nextDispatch = requestAnimationFrame( this._dispatchEvents.bind(this) );
+
+			} else if (this._timingMode === enums.FASTFRAME) {
+				this._nextDispatch = requestAnimationFrame( function() {
+					this._dispatchEvents(min);
+				}.bind(this));
+
 			}
 		}
 	}

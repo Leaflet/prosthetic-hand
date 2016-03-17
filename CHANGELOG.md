@@ -1,4 +1,8 @@
 
+# v1.1.1
+
+* Added legacy `initMouseEvent()` for PhantomJS
+
 # v1.1.0
 
 * Replaced timing loop with 5 different timing modes
@@ -27,6 +31,7 @@
 
 # TODO
 
+* Fire events on hand start / hand stop
 * Allow use of the deprecated `initEvent()` event creation functions (instead of `new Event()`), for PhantomJS.
 * Test multi-finger `PointerEvents`s
 * Allow to sync fingers (maybe via `Hand.syncFingers()` and/or `Finger.sync()`)

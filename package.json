@@ -1,12 +1,16 @@
 {
   "name": "prosthetic-hand",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Automate synthetic touch/pointer events",
   "main": "dist/prosthetic-hand.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node_modules/.bin/gobble",
     "prepublish": "node_modules/.bin/gobble build -f dist/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IvanSanchez/prosthetic-hand.git"
   },
   "author": "Iván Sánchez Ortega <ivan@sanchezortega.es>",
   "license": "Beerware",

@@ -1,6 +1,7 @@
 
 import Finger from './Finger.js';
 import * as enums from './Enums.js';
+import * as capabilities from './Capabilities.js';
 
 // 🖑class Hand
 // Represents a set of `Finger`s, capable of performing synthetic touch gestures
@@ -210,7 +211,7 @@ export default class Hand {
 				// In case touches are added and removed on the same instant,
 				// `touchstart` takes precedence.
 
-				touchEvent = new TouchEvent("touchstart", {
+				touchEvent = this._createTouchEvent("touchstart", {
 					cancelable: true,
 					bubbles: true,
 					touches: touches,
@@ -228,7 +229,7 @@ export default class Hand {
 				// if the touch point has moved outside that element.»
 				touchEndTarget = document.elementFromPoint(changedTouches[0].clientX, changedTouches[0].clientY);
 
-				touchEvent = new TouchEvent("touchend", {
+				touchEvent = this._createTouchEvent("touchend", {
 					cancelable: true,
 					bubbles: true,
 					touches: touches,
@@ -247,7 +248,7 @@ export default class Hand {
 // 				touchTarget = touches[0].target;
 				touchTarget = document.elementFromPoint(touches[0].clientX, touches[0].clientY);
 
-				touchEvent = new TouchEvent("touchmove", {
+				touchEvent = this._createTouchEvent("touchmove", {
 					cancelable: true,
 					bubbles: true,
 					touches: touches,
@@ -267,6 +268,78 @@ export default class Hand {
 		this._scheduleNextDispatch();
 
 		return this;
+	}
+
+	// Wrapper over `new Event()` or `createEvent(); initTouchEvent()` depending
+	// on what the browser supports.
+	_createTouchEvent(type, data) {
+		if (capabilities.eventConstructors) {
+			return new TouchEvent(type, data)
+		} else {
+			// It's ugly, it's legacy, but it should work.
+			// See https://miketaylr.com/posts/2015/09/init-touch-event-is-a-rats-nest.html
+
+			var touchEvent;
+			try {
+				touchEvent = document.createEvent('TouchEvent');
+			} catch (e) {
+				touchEvent = document.createEvent('UIEvent');
+			}
+
+			if (touchEvent && touchEvent.initTouchEvent) {
+				if (touchEvent.initTouchEvent.length == 0) { // webkit
+					touchEvent.initTouchEvent(
+						this._createTouchListFromArray(data.touches),
+						this._createTouchListFromArray(data.targetTouches),
+						this._createTouchListFromArray(data.changedTouches),
+						type,
+						window,
+						0,	// screenX
+						0,	// screenY
+						0,	// clientX
+						0	// clientY
+					);
+// 				} else if ( touchEvent.initTouchEvent.length == 12 ) { //firefox
+// 					touchEvent.initTouchEvent(type, data.bubbles, data.cancelable, window,
+// 						data.detail, data.ctrlKey, data.altKey, data.shiftKey, data.metaKey, data.touches,
+// 						data.targetTouches,	data.changedTouches);
+// 				} else { //iOS length = 18
+// 					touchEvent.initTouchEvent(type, data.bubbles, data.cancelable, window,
+// 						data.detail, data.screenX, data.screenY, data.pageX, data.pageY, data.ctrlKey,
+// 						data.altKey, data.shiftKey, data.metaKey, data.touches, data.targetTouches,
+// 						data.changedTouches, data.scale, data.rotation);
+				}
+			}
+
+			return touchEvent;
+		}
+	}
+
+
+	// Stupid wrapper over document.createTouchList, because PhantomJS
+	// doesn't like document.createTouchList.apply. I know this is a hack.
+	_createTouchListFromArray(touches) {
+		switch(touches.length) {
+			case 0:
+				return document.createTouchList();
+			case 1:
+				return document.createTouchList(touches[0]);
+			case 2:
+				return document.createTouchList(touches[0], touches[1]);
+			case 3:
+				return document.createTouchList(touches[0], touches[1], touches[2]);
+			case 4:
+				return document.createTouchList(touches[0], touches[1], touches[2], touches[3]);
+			case 5:
+				return document.createTouchList(touches[0], touches[1], touches[2], touches[3], touches[4]);
+			case 6:
+				return document.createTouchList(touches[0], touches[1], touches[2], touches[3], touches[4], touches[5]);
+			case 7:
+				return document.createTouchList(touches[0], touches[1], touches[2], touches[3], touches[4], touches[5], touches[6]);
+			default:
+				return document.createTouchList(touches[0], touches[1], touches[2], touches[3], touches[4], touches[5], touches[6], touches[7]);
+		}
+
 	}
 
 

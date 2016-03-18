@@ -387,21 +387,39 @@ export default class Finger {
 	// Note this is not an event - a `TouchEvent` must be created later, with several
 	// `Touch`es.
 	_asTouch() {
+		var touch;
+		if (capabilities.eventConstructors) {
+			touch = new Touch({
+				identifier: this._id,
+				target: this._touchTargetWhenDowned,
+				clientX: this._state.x,
+				clientY: this._state.y,
+				screenX: this._state.x,	/// TODO: Handle page scrolling
+				screenY: this._state.y,
+				pageX: this._state.x,
+				pageY: this._state.y,
+				radiusX: 25,
+				radiusY: 25,
+				rotationAngle: 0,
+				force: this._state.pressure
+			});
+		} else {
+			touch = document.createTouch(
+				window,	// view
+				this._touchTargetWhenDowned,	// target
+				this._id,	// identifier
+				this._state.x,	// pageX
+				this._state.y,	// pageY
+				this._state.x,	// screenX
+				this._state.y,	// screenY
 
-		var touch = new Touch({
-			identifier: this._id,
-			target: this._touchTargetWhenDowned,
-			clientX: this._state.x,
-			clientY: this._state.y,
-			screenX: this._state.x,	/// TODO: Handle page scrolling
-			screenY: this._state.y,
-			pageX: this._state.x,
-			pageY: this._state.y,
-			radiusX: 25,
-			radiusY: 25,
-			rotationAngle: 0,
-			force: this._state.pressure
-		});
+				// Non-standard params follow:
+				25,	// radiusX
+				25,	// radiusY
+				0,	// rotationAngle
+				this._state.pressure	// force
+			);
+		}
 
 		return touch;
 	}

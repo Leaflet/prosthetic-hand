@@ -11,7 +11,8 @@
 export var eventConstructors = true;
 
 try {
-	var foo = new MouseEvent();
+	var foo = new Touch({ identifier: 0, target: document });
+// 	var foo = new MouseEvent();
 } catch(e) {
 	eventConstructors = false;
 }

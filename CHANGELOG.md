@@ -1,4 +1,8 @@
 
+# v1.1.2
+
+* Added legacy `initTouch()`, `initTouchList()` and `createEvent('TouchEvent')` for PhantomJS
+
 # v1.1.1
 
 * Added legacy `initMouseEvent()` for PhantomJS

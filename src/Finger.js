@@ -434,6 +434,11 @@ export default class Finger {
 				this._state.x,	// screenX
 				this._state.y,	// screenY
 
+				// Inconsistency: these are needed in Firefox but it MUST be ignored
+				// in PhantomJS.
+// 				this._state.x,	// pageX
+// 				this._state.y,	// pageY
+
 				// Non-standard params follow:
 				25,	// radiusX
 				25,	// radiusY

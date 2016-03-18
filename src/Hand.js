@@ -345,10 +345,21 @@ export default class Hand {
 						0,	// clientX
 						0	// clientY
 					);
-// 				} else if ( touchEvent.initTouchEvent.length == 12 ) { //firefox
-// 					touchEvent.initTouchEvent(type, data.bubbles, data.cancelable, window,
-// 						data.detail, data.ctrlKey, data.altKey, data.shiftKey, data.metaKey, data.touches,
-// 						data.targetTouches,	data.changedTouches);
+				} else if ( touchEvent.initTouchEvent.length == 12 ) { //firefox
+					touchEvent.initTouchEvent(
+						type,
+						data.bubbles,
+						data.cancelable,
+						window,
+						data.detail,
+						data.ctrlKey,
+						data.altKey,
+						data.shiftKey,
+						data.metaKey,
+						this._createTouchListFromArray(data.touches),
+						this._createTouchListFromArray(data.targetTouches),
+						this._createTouchListFromArray(data.changedTouches)
+					);
 // 				} else { //iOS length = 18
 // 					touchEvent.initTouchEvent(type, data.bubbles, data.cancelable, window,
 // 						data.detail, data.screenX, data.screenY, data.pageX, data.pageY, data.ctrlKey,

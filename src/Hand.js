@@ -119,8 +119,18 @@ export default class Hand {
 
 		/// TODO: Start up the event loop
 
-		this._fingersAreIdle = false;
-		this._scheduleNextDispatch();
+		if (this._fingersAreIdle) {
+			// 🖑section
+			// Use `document.addEventListener('prostheticHandStop', fn)` to
+			// do stuff with it.
+			// 🖑event prostheticHandStart: CustomEvent
+			// Fired when all movements are complete.
+			document.dispatchEvent(new CustomEvent('prostheticHandStart', {target: this}));
+
+
+			this._fingersAreIdle = false;
+			this._scheduleNextDispatch();
+		}
 
 		return this;
 	}
@@ -131,10 +141,40 @@ export default class Hand {
 	fingerIsIdle() {
 
 		if (this._fingers.every( f => f.isIdle())) {
+
+			if (!this._fingersAreIdle) {
+				// 🖑event prostheticHandStop: CustomEvent
+				// Fired when all movements are complete.
+
+				document.dispatchEvent(new CustomEvent('prostheticHandStop', {target: this}));
+			}
+
 			this._fingersAreIdle = true;
 		}
+	}
 
-		//// TODO: Stop the event loop
+
+	// 🖑method sync(delay): this
+	// Synchronizes the finger movements by adding a delay of **at least** `delay`
+	// milliseconds to each finger. After a sync, the movements of the fingers
+	// will happen at exactly the same time.
+	sync(delay) {
+
+		var endTimestamp = performance.now();
+
+		this._fingers.forEach( f =>  {
+			var movesUntil = f._movesUntil;
+			if (movesUntil) {
+				endTimestamp = Math.max(endTimestamp, movesUntil);
+			}
+		});
+
+		var waitUntil = endTimestamp + delay;
+
+		this._fingers.forEach( f =>  {
+			f.waitUntil(waitUntil);
+		});
+
 	}
 
 
@@ -145,6 +185,12 @@ export default class Hand {
 	// all `Event`s triggered by the update.
 	// This is meant to be called on an internal timer.
 	_dispatchEvents(timestamp) {
+
+		// 🖑event prostheticHandTick: CustomEvent
+		// Fired a movement is about to start, just before the mouse/touch/pointer
+		// events are fired.
+		document.dispatchEvent(new CustomEvent('prostheticHandStart', {target: this}));
+
 
 		var now = timestamp || performance.now();
 		var events = [];
@@ -318,6 +364,7 @@ export default class Hand {
 
 	// Stupid wrapper over document.createTouchList, because PhantomJS
 	// doesn't like document.createTouchList.apply. I know this is a hack.
+	// **Hopefully** nobody needs more than 8 fingers at the same time in PhantomJS.
 	_createTouchListFromArray(touches) {
 		switch(touches.length) {
 			case 0:

@@ -164,6 +164,27 @@ export default class Finger {
 	}
 
 
+	// 🖑method waitUntil(timestamp): this
+	// Don't move this finger until the given timestamp is reached.
+	waitUntil(timestamp) {
+		if (this._movements.length) {
+			return this.wait( timestamp - this._movesUntil );
+		} else {
+			var move = {
+				finalState: this._finalState,
+				getState: this._falseFn,
+				duration: timestamp - performance.now(),
+				until: timestamp
+			};
+			this._movesUntil = this._movesFrom = move.until;
+			this._movements.push(move);
+
+			this._hand.fingerIsBusy();
+		}
+		return this;
+	}
+
+
 	// 🖑method update(options?: {}): this
 	// Updates some of the finger options, like pressure or touch angle,
 	// without disturbing its movement, after an optional delay.
@@ -248,7 +269,7 @@ export default class Finger {
 	}
 
 
-	// Returns the time when the next movement will be finished
+	// Returns the timestamp when the next movement will be finished
 	// 🖑method getNextMoveEndTime(): Number|undefined
 	getNextMoveEndTime() {
 		if (!this._movements.length) {

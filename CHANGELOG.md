@@ -1,4 +1,10 @@
 
+# v1.2.0
+
+* Added `Hand.sync()`
+* Added `Finger.waitUntil`
+* `Hand` fires events in `document`: `prostheticHandStart`, `prostheticHandStop` and `prostheticHandTick`
+
 # v1.1.2
 
 * Added legacy `initTouch()`, `initTouchList()` and `createEvent('TouchEvent')` for PhantomJS
@@ -35,13 +41,12 @@
 
 # TODO
 
-* Fire events on hand start / hand stop
-* Allow use of the deprecated `initEvent()` event creation functions (instead of `new Event()`), for PhantomJS.
+* Check if there's any way to make `PointerEvent`s work in PhantomJS
 * Test multi-finger `PointerEvents`s
-* Allow to sync fingers (maybe via `Hand.syncFingers()` and/or `Finger.sync()`)
 * Implement some kind of wheel-scrolling for `MouseEvent` and `PointerEvent` fingers
 * Implement `Hand`-level gestures (pinch, rotate, 2-, 3-, 4-finger pan)
 * Implement `ctrlKey`, `metaKey` and `shiftKey` event properties
 * Test with the PointerEvents Polyfill: https://github.com/jquery/PEP and the TouchEvents polyfill at https://github.com/CamHenlin/TouchPolyfill
+* Implement double-click (and triple, etc) via the `detail` property of `MouseEvent` and `PointerEvent`
 
 

@@ -7,11 +7,11 @@ unit-test touch gestures.
 
 ## Demos
 
-http://ivansanchez.github.io/prosthetic-hand/demos/
+http://leaflet.github.io/prosthetic-hand/demos/
 
 ## API documentation
 
-http://ivansanchez.github.io/prosthetic-hand/api-docs.html
+http://leaflet.github.io/prosthetic-hand/api-docs.html
 
 
 
@@ -33,5 +33,16 @@ web browser must support (or polyfill) these events. Short version: use
 Chrome when running code that emulates `TouchEvents`, and IE11 or Edge when
 emulating `PointerEvent`s.
 
+## Contributing code
 
+Read the Leaflet guidelines at https://github.com/Leaflet/Leaflet/blob/master/CONTRIBUTING.md
 
+Whenever making a bugfix or a new feature, notify [IvanSanchez](https://github.com/IvanSanchez) so that a new version can be published to NPM.
+
+## Legalese
+
+#### "THE BEER-WARE LICENSE":
+
+<ivan@sanchezortega.es> wrote this file. As long as you retain this notice you
+can do whatever you want with this stuff. If we meet some day, and you think
+this stuff is worth it, you can buy me a beer in return.

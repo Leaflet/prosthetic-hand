@@ -249,7 +249,6 @@ export default class Hand {
 		/// Build *ONE* `TouchEvent` with `TouchList`s built with
 		/// the fingers' touches.
 		if (touches.length || hasTouchEnd) {
-
 			var touchEvent;
 			var touchTarget;
 
@@ -306,6 +305,13 @@ export default class Hand {
 
 			if (changedTouches.length) {
 // console.log('Dispatching touch event:', touchEvent.type, touchEvent, touchTarget);
+
+				// Safari misbehaves when searching for the elementFromPoint(0, 0)
+				// and returns `undefined` instead of `document`
+				if (!touchTarget) {
+					touchTarget = document;
+				}
+
 				touchTarget.dispatchEvent(touchEvent);
 			}
 
@@ -319,7 +325,7 @@ export default class Hand {
 	// Wrapper over `new Event()` or `createEvent(); initTouchEvent()` depending
 	// on what the browser supports.
 	_createTouchEvent(type, data) {
-		if (capabilities.eventConstructors) {
+		if (capabilities.touchEventConstructor) {
 			return new TouchEvent(type, data)
 		} else {
 			// It's ugly, it's legacy, but it should work.
@@ -333,7 +339,7 @@ export default class Hand {
 			}
 
 			if (touchEvent && touchEvent.initTouchEvent) {
-				if (touchEvent.initTouchEvent.length == 0) { // webkit
+				if (touchEvent.initTouchEvent.length == 0 && !capabilities.safari) { // Chrome
 					touchEvent.initTouchEvent(
 						this._createTouchListFromArray(data.touches),
 						this._createTouchListFromArray(data.targetTouches),
@@ -345,6 +351,7 @@ export default class Hand {
 						0,	// clientX
 						0	// clientY
 					);
+
 				} else if ( touchEvent.initTouchEvent.length == 12 ) { //firefox
 					touchEvent.initTouchEvent(
 						type,
@@ -360,11 +367,29 @@ export default class Hand {
 						this._createTouchListFromArray(data.targetTouches),
 						this._createTouchListFromArray(data.changedTouches)
 					);
-// 				} else { //iOS length = 18
-// 					touchEvent.initTouchEvent(type, data.bubbles, data.cancelable, window,
-// 						data.detail, data.screenX, data.screenY, data.pageX, data.pageY, data.ctrlKey,
-// 						data.altKey, data.shiftKey, data.metaKey, data.touches, data.targetTouches,
-// 						data.changedTouches, data.scale, data.rotation);
+
+				} else { // Safari (length = 18, shows 0)
+					// https://developer.apple.com/library/safari/documentation/UserExperience/Reference/TouchEventClassReference/index.html#//apple_ref/javascript/instm/TouchEvent/initTouchEvent
+					touchEvent.initTouchEvent(
+						type,
+						data.bubbles,
+						data.cancelable,
+						window,
+						data.detail,
+						0, // screenX,
+						0, // screenY,
+						0, // pageX,
+						0, // pageY,
+						data.ctrlKey,
+						data.altKey,
+						data.shiftKey,
+						data.metaKey,
+						this._createTouchListFromArray(data.touches),
+						this._createTouchListFromArray(data.targetTouches),
+						this._createTouchListFromArray(data.changedTouches),
+						1, // data.scale,	- as factor of initial distance between the two first touches
+						0 // data.rotation	- as delta of angle of two first touches
+					);
 				}
 			}
 

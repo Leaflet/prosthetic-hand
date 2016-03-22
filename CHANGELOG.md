@@ -1,4 +1,8 @@
 
+# v1.2.1
+
+* Worked around iOS+Safari inconsistent TouchEvent implementation
+
 # v1.2.0
 
 * Added `Hand.sync()`

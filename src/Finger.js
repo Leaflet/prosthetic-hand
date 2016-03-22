@@ -351,7 +351,7 @@ export default class Finger {
 				// TODO: Optionally reset the finger ID and grab a fresh one
 
 				this._graphic.style.display = 'block';
-				this._touchTargetWhenDowned = this._currentTarget;
+				this._touchTargetWhenDowned = this._currentTarget = document.elementFromPoint(this._state.x, this._state.y);
 				evType = 'down';
 			}
 
@@ -409,7 +409,7 @@ export default class Finger {
 	// `Touch`es.
 	_asTouch() {
 		var touch;
-		if (capabilities.eventConstructors) {
+		if (capabilities.touchConstructor && !capabilities.safari) {
 			touch = new Touch({
 				identifier: this._id,
 				target: this._touchTargetWhenDowned,
@@ -439,13 +439,15 @@ export default class Finger {
 // 				this._state.x,	// pageX
 // 				this._state.y,	// pageY
 
-				// Non-standard params follow:
+				// Non-standard chrome params follow:
 				25,	// radiusX
 				25,	// radiusY
 				0,	// rotationAngle
 				this._state.pressure	// force
 			);
 		}
+
+console.log(touch, this._state);
 
 		return touch;
 	}
@@ -481,7 +483,7 @@ export default class Finger {
 	// Returns an instance of `PointerEvent` representing the current state of the finger
 	_asMouseEvent(evType) {
 		var ev;
-		if (capabilities.eventConstructors) {
+		if (capabilities.mouseEventConstructor) {
 			ev = new MouseEvent('mouse' + evType, {
 				bubbles: true,
 				button:  0,	// Moz doesn't use -1 when no buttons are pressed, WTF?

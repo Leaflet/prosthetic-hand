@@ -1,4 +1,8 @@
 
+# v1.2.4
+
+* Cleaned up `console.log()`s
+
 # v1.2.3
 
 * Fixed a typo affecting strict mode globals

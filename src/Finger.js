@@ -447,8 +447,6 @@ export default class Finger {
 			);
 		}
 
-console.log(touch, this._state);
-
 		return touch;
 	}
 

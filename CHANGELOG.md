@@ -1,4 +1,8 @@
 
+# v1.2.2
+
+* Fixed display of circles in Edge
+
 # v1.2.1
 
 * Worked around iOS+Safari inconsistent TouchEvent implementation

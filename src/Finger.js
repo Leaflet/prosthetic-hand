@@ -536,7 +536,15 @@ console.log(touch, this._state);
 		this._graphic.style.marginTop  = '-25px';
 		this._graphic.style.pointerEvents = 'none';
 
-		this._graphic.innerHTML = '<circle cx="25" cy="25" r="20" stroke="rgba(0,0,0,0.3)" stroke-width="2" fill="rgba(0,0,0,0.1)"/>';
+		var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+		circle.cx.baseVal.value = 25;
+		circle.cy.baseVal.value = 25;
+		circle.r.baseVal.value = 20;
+		circle.style.stroke = 'rgba(0,0,0,0.3)';
+		circle.style.strokeWidth = 2;
+		circle.style.fill = 'rgba(0,0,0,0.1)';
+
+		this._graphic.appendChild(circle);
 
 		this._graphic.style.display = 'none';
 		document.body.appendChild(this._graphic);

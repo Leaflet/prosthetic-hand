@@ -23,7 +23,7 @@ export var mouseEventConstructor = true;
 try {
 	var foo = new MouseEvent('mousedown');
 } catch(e) {
-	mouseConstructor = false;
+	mouseEventConstructor = false;
 }
 
 

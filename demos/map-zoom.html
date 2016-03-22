@@ -95,11 +95,11 @@ finger2.wait(100).moveTo(350, 200, 0)
 	function zoomWithPen() {
 		f3.wait(100).moveTo(250, 200, 0)
 			.down().wait(500).moveBy(-100, 0, 1000).wait(500).up().wait(500)
-// 			.down().wait(500).moveBy( 100, 0, 1000).wait(500).up().wait(500);
+			.down().wait(500).moveBy( 100, 0, 1000).wait(500).up().wait(500);
 
 		f4.wait(100).moveTo(350, 200, 0)
 			.down().wait(500).moveBy( 100, 0, 1000).wait(500).up().wait(500)
-// 			.down().wait(500).moveBy(-100, 0, 1000).wait(500).up().wait(500);
+			.down().wait(500).moveBy(-100, 0, 1000).wait(500).up().wait(500);
 	}
 
     var myCenter = new L.LatLng(45, 6);
@@ -117,7 +117,7 @@ finger2.wait(100).moveTo(350, 200, 0)
 	});
 
 	L.DomEvent.on(map._container, 'touchstart touchend touchmove', function(ev){
-		console.log('T: ', performance.now(), ev.type, ev.touches.length, ev.changedTouches.length, ev);
+// 		console.log('T: ', performance.now(), ev.type, ev.touches.length, ev.changedTouches.length, ev);
 	});
 
 //     L.DomEvent.on(document.body, 'touchstart touchend touchmove', function(ev){

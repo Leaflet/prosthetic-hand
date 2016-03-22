@@ -1,4 +1,8 @@
 
+# v1.2.3
+
+* Fixed a typo affecting strict mode globals
+
 # v1.2.2
 
 * Fixed display of circles in Edge
@@ -50,7 +54,6 @@
 # TODO
 
 * Check if there's any way to make `PointerEvent`s work in PhantomJS
-* Test multi-finger `PointerEvents`s
 * Implement some kind of wheel-scrolling for `MouseEvent` and `PointerEvent` fingers
 * Implement `Hand`-level gestures (pinch, rotate, 2-, 3-, 4-finger pan)
 * Implement `ctrlKey`, `metaKey` and `shiftKey` event properties

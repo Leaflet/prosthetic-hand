@@ -1,4 +1,8 @@
 
+# v1.2.6
+
+* Fixed PhantomJS regression introduced in v1.2.1.
+
 # v1.2.4
 
 * Cleaned up `console.log()`s

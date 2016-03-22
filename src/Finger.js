@@ -425,28 +425,50 @@ export default class Finger {
 				force: this._state.pressure
 			});
 		} else {
-			touch = document.createTouch(
-				window,	// view
-				this._touchTargetWhenDowned,	// target
-				this._id,	// identifier
-				this._state.x,	// pageX
-				this._state.y,	// pageY
-				this._state.x,	// screenX
-				this._state.y,	// screenY
 
-				// Inconsistency: these are needed in Firefox but it MUST be ignored
-				// in PhantomJS.
-// 				this._state.x,	// pageX
-// 				this._state.y,	// pageY
+			if (capabilities.chrome) {
+				touch = document.createTouch(
+					window,	// view
+					this._touchTargetWhenDowned,	// target
+					this._id,	// identifier
+					this._state.x,	// clientX
+					this._state.y,	// clientY
+					this._state.x,	// screenX
+					this._state.y,	// screenY
 
-				// Non-standard chrome params follow:
-				25,	// radiusX
-				25,	// radiusY
-				0,	// rotationAngle
-				this._state.pressure	// force
-			);
+					// Inconsistency: These break anything other than chrome:
+					25,	// radiusX
+					25,	// radiusY
+					0,	// rotationAngle
+					this._state.pressure	// force
+				);
+			} else if (capabilities.gecko) {
+				touch = document.createTouch(
+					window,	// view
+					this._touchTargetWhenDowned,	// target
+					this._id,	// identifier
+					this._state.x,	// clientX
+					this._state.y,	// clientY
+					this._state.x,	// screenX
+					this._state.y,	// screenY
+
+					// Inconsistency: these are needed in Firefox
+					this._state.x,	// pageX
+					this._state.y	// pageY
+				);
+			} else {
+				touch = document.createTouch(
+					window,	// view
+					this._touchTargetWhenDowned,	// target
+					this._id,	// identifier
+					this._state.x,	// clientX
+					this._state.y,	// clientY
+					this._state.x,	// screenX
+					this._state.y	// screenY
+				);
+			}
+
 		}
-
 		return touch;
 	}
 

@@ -70,8 +70,7 @@ export var pointer = !!('PointerEvent' in window);
 
 
 
-// Borrowed from Leaflet's L.Browser
-
+// Some bits borrowed from Leaflet's L.Browser
 
 var ua = navigator.userAgent.toLowerCase(),
     ie = 'ActiveXObject' in window,
@@ -81,6 +80,7 @@ var ua = navigator.userAgent.toLowerCase(),
     chrome    = ua.indexOf('chrome') !== -1,
     gecko     = ua.indexOf('gecko') !== -1  && !webkit && !window.opera && !ie;
 
+export var phantomjs = phantomjs;
 export var ie = ie;
 export var ielt9 = ie && !document.addEventListener;
 export var edge = 'msLaunchUri' in navigator && !('documentMode' in document);
@@ -89,5 +89,4 @@ export var gecko = gecko;
 export var android = ua.indexOf('android') !== -1;
 export var android23 = android23;
 export var chrome = chrome;
-export var safari = !chrome && ua.indexOf('safari') !== -1;
-
+export var safari = !chrome && !phantomjs && ua.indexOf('safari') !== -1;

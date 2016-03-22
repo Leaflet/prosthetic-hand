@@ -326,7 +326,7 @@ export default class Hand {
 	// on what the browser supports.
 	_createTouchEvent(type, data) {
 		if (capabilities.touchEventConstructor) {
-			return new TouchEvent(type, data)
+			return new TouchEvent(type, data);
 		} else {
 			// It's ugly, it's legacy, but it should work.
 			// See https://miketaylr.com/posts/2015/09/init-touch-event-is-a-rats-nest.html
@@ -392,7 +392,6 @@ export default class Hand {
 					);
 				}
 			}
-
 			return touchEvent;
 		}
 	}

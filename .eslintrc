@@ -1,7 +1,9 @@
 {
   "globals": {
     "L": true,
-    "PointerEvent": true
+    "PointerEvent": true,
+    "Hand": true,
+    "chai": true,
   },
   "parser": "babel-eslint",
   "env": {

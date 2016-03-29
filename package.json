@@ -4,7 +4,9 @@
   "description": "Automate synthetic touch/pointer events",
   "main": "dist/prosthetic-hand.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint -c .eslintrc src/",
+    "spec-mocha": "phantomjs ./node_modules/mocha-phantomjs-core/mocha-phantomjs-core.js test/index.html",
+    "test": "npm run lint && npm run spec-mocha",
     "start": "node_modules/.bin/gobble",
     "prepublish": "node_modules/.bin/gobble build -f dist/"
   },
@@ -15,12 +17,17 @@
   "author": "Iván Sánchez Ortega <ivan@sanchezortega.es>",
   "license": "Beerware",
   "devDependencies": {
+    "babel-eslint": "^6.0.0",
     "babel-plugin-transform-object-assign": "^6.5.0",
     "babel-preset-es2015-rollup": "^1.1.1",
+    "eslint": "^1.5.1",
+    "eslint-config-mourner": "^1.0.0",
     "gobble": "^0.10.2",
     "gobble-cli": "^0.6.0",
     "gobble-leafdoc": "^0.1.7",
     "gobble-rollup": "^0.25.0",
+    "mocha-phantomjs-core": "^2.0.1",
+    "phantomjs-prebuilt": "^2.1.4",
     "rollup-plugin-babel": "^2.4.0"
   }
 }

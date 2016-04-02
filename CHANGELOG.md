@@ -1,4 +1,8 @@
 
+# v1.3.0
+
+* Added `onStart` and `onStop` callbacks
+
 # v1.2.6
 
 * Fixed PhantomJS regression introduced in v1.2.1.

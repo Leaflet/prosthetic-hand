@@ -69,7 +69,9 @@ export default class Hand {
 			// 🖑option instant
 			// Like the `minimal` mode, but ignores timings completely and dispatches
 			// all events instantaneously. This might cause misbehaviour in graphical
-			// browsers.
+			// browsers, and the `onStart` and `onStop` callbacks will be called at.
+			// every step of the movement (as the movement ends before the next step
+			// is chained in)
 			if (timing === 'instant') {
 				this._timingMode = enums.INSTANT;
 				this._timeInterval = false;
@@ -83,8 +85,23 @@ export default class Hand {
 				this._timeInterval = parseInt(timing);
 			}
 		}
+		
 		// 🖑class Hand
 
+		// 🖑option onStart: Function
+		// If set to a callback function, it will be called (with the `Hand` 
+		// as its only argument) whenever the movements start.
+		if (options.onStart) {
+			this._onStart = options.onStart;
+		}
+		
+		// 🖑option onStop: Function
+		// If set to a callback function, it will be called (with the `Hand` 
+		// as its only argument) whenever the movements are completed.
+		if (options.onStop) {
+			this._onStop = options.onStop;
+		}
+		
 
 		// Cancellable reference to the next call to `_dispatchEvents`. This
 		// might be either a `setTimeout` reference or a `requestAnimationFrame`
@@ -127,7 +144,10 @@ export default class Hand {
 			// Fired when all movements are complete.
 			document.dispatchEvent(new CustomEvent('prostheticHandStart', {target: this}));
 
-
+			if (this._onStart && this._onStart instanceof Function) {
+				this._onStart(this);
+			}
+			
 			this._fingersAreIdle = false;
 			this._scheduleNextDispatch();
 		}
@@ -147,6 +167,12 @@ export default class Hand {
 				// Fired when all movements are complete.
 
 				document.dispatchEvent(new CustomEvent('prostheticHandStop', {target: this}));
+				
+
+				if (this._onStop && this._onStop instanceof Function) {
+					this._onStop(this);
+				}
+
 			}
 
 			this._fingersAreIdle = true;

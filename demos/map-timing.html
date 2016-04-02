@@ -51,22 +51,30 @@
 
 	<script>
 
-	var h1 = new Hand({ timing: '20ms' });
+	var onStart = function() {
+		console.log('hand started moving');
+	};
+	
+	var onStop = function(){
+		console.log('hand stopped moving');
+	}
+	
+	var h1 = new Hand({ timing: '20ms' , onStart: onStart, onStop: onStop});
 	var f1 = h1.growFinger('mouse');
 
-	var h2 = new Hand({ timing: '250ms' });
+	var h2 = new Hand({ timing: '250ms' , onStart: onStart, onStop: onStop});
 	var f2 = h2.growFinger('mouse');
 
-	var h3 = new Hand({ timing: 'minimal' });
+	var h3 = new Hand({ timing: 'minimal' , onStart: onStart, onStop: onStop});
 	var f3 = h3.growFinger('mouse');
 
-	var h4 = new Hand({ timing: 'instant' });
+	var h4 = new Hand({ timing: 'instant' , onStart: onStart, onStop: onStop});
 	var f4 = h4.growFinger('mouse');
 
-	var h5 = new Hand({ timing: 'frame' });
+	var h5 = new Hand({ timing: 'frame' , onStart: onStart, onStop: onStop});
 	var f5 = h5.growFinger('mouse');
 
-	var h6 = new Hand({ timing: 'fastframe' });
+	var h6 = new Hand({ timing: 'fastframe' , onStart: onStart, onStop: onStop});
 	var f6 = h6.growFinger('mouse');
 
 

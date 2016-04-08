@@ -10,10 +10,11 @@
 // and `event.initMouseEvent()`. This is needed for legacy browsers and PhantomJS.
 export var eventConstructors = true;
 
+/* eslint no-unused-vars: 0, no-redeclare: 0*/
 try {
-	var foo = new Touch({ identifier: 0, target: document });
+	var foo = new Touch({identifier: 0, target: document});
 // 	var foo = new MouseEvent();
-} catch(e) {
+} catch (e) {
 	eventConstructors = false;
 }
 
@@ -22,7 +23,7 @@ export var mouseEventConstructor = true;
 
 try {
 	var foo = new MouseEvent('mousedown');
-} catch(e) {
+} catch (e) {
 	mouseEventConstructor = false;
 }
 
@@ -31,8 +32,8 @@ try {
 export var touchConstructor = true;
 
 try {
-	var foo = new Touch({ identifier: 0, target: document });
-} catch(e) {
+	var foo = new Touch({identifier: 0, target: document});
+} catch (e) {
 	touchConstructor = false;
 }
 
@@ -42,8 +43,8 @@ try {
 export var touchEventConstructor = true;
 
 try {
-	var foo = new TouchEvent('touchdown')
-} catch(e) {
+	var foo = new TouchEvent('touchdown');
+} catch (e) {
 	touchEventConstructor = false;
 }
 
@@ -53,7 +54,7 @@ export var pointerEventConstructor = true;
 
 try {
 	var foo = new PointerEvent('pointerdown');
-} catch(e) {
+} catch (e) {
 	pointerEventConstructor = false;
 }
 

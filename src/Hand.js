@@ -29,7 +29,7 @@ export default class Hand {
 		this._fingersAreIdle = true;
 
 
-		/// TODO: Timing modes: minimal, interval, frames
+		// TODO: Timing modes: minimal, interval, frames
 
 		// 🖑option timing: Timing= '20ms'
 		// Defines how often new events will be fired, in one of the possible
@@ -134,7 +134,7 @@ export default class Hand {
 	// performed by at least one finger.
 	fingerIsBusy() {
 
-		/// TODO: Start up the event loop
+		// TODO: Start up the event loop
 
 		if (this._fingersAreIdle) {
 			// 🖑section
@@ -160,7 +160,7 @@ export default class Hand {
 	// all the queued movements.
 	fingerIsIdle() {
 
-		if (this._fingers.every( f => f.isIdle())) {
+		if (this._fingers.every(f => f.isIdle())) {
 
 			if (!this._fingersAreIdle) {
 				// 🖑event prostheticHandStop: CustomEvent
@@ -188,7 +188,7 @@ export default class Hand {
 
 		var endTimestamp = performance.now();
 
-		this._fingers.forEach( f =>  {
+		this._fingers.forEach(f =>  {
 			var movesUntil = f._movesUntil;
 			if (movesUntil) {
 				endTimestamp = Math.max(endTimestamp, movesUntil);
@@ -197,7 +197,7 @@ export default class Hand {
 
 		var waitUntil = endTimestamp + delay;
 
-		this._fingers.forEach( f =>  {
+		this._fingers.forEach(f =>  {
 			f.waitUntil(waitUntil);
 		});
 
@@ -236,7 +236,7 @@ export default class Hand {
 
 			var evs = f.getEvents(now, fast);
 
-			evs.forEach( ev => {
+			evs.forEach(ev => {
 				if ('event' in ev) {
 					events.push(ev.event);
 				}
@@ -266,14 +266,14 @@ export default class Hand {
 		});
 
 		// Fire all `MouseEvent`s and `PointerEvent`s
-		events.forEach( ev => {
+		events.forEach(ev => {
 // 			console.log('Dispatching: ', ev.type);
 			document.elementFromPoint(ev.clientX, ev.clientY).dispatchEvent(ev);
 		});
 
 
-		/// Build *ONE* `TouchEvent` with `TouchList`s built with
-		/// the fingers' touches.
+		// Build *ONE* `TouchEvent` with `TouchList`s built with
+		// the fingers' touches.
 		if (touches.length || hasTouchEnd) {
 			var touchEvent;
 			var touchTarget;
@@ -282,15 +282,15 @@ export default class Hand {
 				// In case touches are added and removed on the same instant,
 				// `touchstart` takes precedence.
 
-				touchEvent = this._createTouchEvent("touchstart", {
+				touchEvent = this._createTouchEvent('touchstart', {
 					cancelable: true,
 					bubbles: true,
 					touches: touches,
-					targetTouches: touches.filter( t => t.target === touchStartTarget ),
+					targetTouches: touches.filter(t => t.target === touchStartTarget),
 					changedTouches: changedTouches
 				});
 				touchTarget = touchStartTarget;
-// console.log('synthesizing touchstart', touchStartTarget, touchEvent);
+				// console.log('synthesizing touchstart', touchStartTarget, touchEvent);
 
 			} else if (hasTouchEnd) {
 
@@ -300,37 +300,37 @@ export default class Hand {
 				// if the touch point has moved outside that element.»
 				touchEndTarget = document.elementFromPoint(changedTouches[0].clientX, changedTouches[0].clientY);
 
-				touchEvent = this._createTouchEvent("touchend", {
+				touchEvent = this._createTouchEvent('touchend', {
 					cancelable: true,
 					bubbles: true,
 					touches: touches,
 					target: touchEndTarget,
-					targetTouches: touches.filter( t => t.target === touchEndTarget ),
+					targetTouches: touches.filter(t => t.target === touchEndTarget),
 					changedTouches: changedTouches
 				});
 				touchTarget = touchEndTarget;
-// console.log('synthesizing touchend', touchEndTarget, touchEvent);
+				// console.log('synthesizing touchend', touchEndTarget, touchEvent);
 
 			} else {
 
 				// I have no idea what I'm doing!!!!1
 				// Apparently dispatching a touch event to the target of a touch
 				// will not work.
-// 				touchTarget = touches[0].target;
+				// touchTarget = touches[0].target;
 				touchTarget = document.elementFromPoint(touches[0].clientX, touches[0].clientY);
 
-				touchEvent = this._createTouchEvent("touchmove", {
+				touchEvent = this._createTouchEvent('touchmove', {
 					cancelable: true,
 					bubbles: true,
 					touches: touches,
-					targetTouches: touches.filter( t => t.target === touchTarget ),
+					targetTouches: touches.filter(t => t.target === touchTarget),
 					changedTouches: changedTouches
 				});
 
 			}
 
 			if (changedTouches.length) {
-// console.log('Dispatching touch event:', touchEvent.type, touchEvent, touchTarget);
+				// console.log('Dispatching touch event:', touchEvent.type, touchEvent, touchTarget);
 
 				// Safari misbehaves when searching for the elementFromPoint(0, 0)
 				// and returns `undefined` instead of `document`
@@ -365,7 +365,7 @@ export default class Hand {
 			}
 
 			if (touchEvent && touchEvent.initTouchEvent) {
-				if (touchEvent.initTouchEvent.length == 0 && !capabilities.safari) { // Chrome
+				if (touchEvent.initTouchEvent.length === 0 && !capabilities.safari) { // Chrome
 					touchEvent.initTouchEvent(
 						this._createTouchListFromArray(data.touches),
 						this._createTouchListFromArray(data.targetTouches),
@@ -378,7 +378,7 @@ export default class Hand {
 						0	// clientY
 					);
 
-				} else if ( touchEvent.initTouchEvent.length == 12 ) { //firefox
+				} else if (touchEvent.initTouchEvent.length === 12) { // firefox
 					touchEvent.initTouchEvent(
 						type,
 						data.bubbles,
@@ -427,7 +427,7 @@ export default class Hand {
 	// doesn't like document.createTouchList.apply. I know this is a hack.
 	// **Hopefully** nobody needs more than 8 fingers at the same time in PhantomJS.
 	_createTouchListFromArray(touches) {
-		switch(touches.length) {
+		switch (touches.length) {
 			case 0:
 				return document.createTouchList();
 			case 1:
@@ -444,14 +444,16 @@ export default class Hand {
 				return document.createTouchList(touches[0], touches[1], touches[2], touches[3], touches[4], touches[5]);
 			case 7:
 				return document.createTouchList(touches[0], touches[1], touches[2], touches[3], touches[4], touches[5], touches[6]);
-			default:
+			case 8:
 				return document.createTouchList(touches[0], touches[1], touches[2], touches[3], touches[4], touches[5], touches[6], touches[7]);
+			default:
+				console.error('PhantomJS does not support document.createTouchList.apply, wrapper only supports 8 fingers');
 		}
 
 	}
 
 
-	_scheduleNextDispatch(){
+	_scheduleNextDispatch() {
 		if (!this._fingersAreIdle) {
 
 			// Calculate time for next movement end. Could be refactored out for
@@ -478,10 +480,10 @@ export default class Hand {
 				return this._dispatchEvents(min);
 
 			} else if (this._timingMode === enums.FRAME) {
-				this._nextDispatch = requestAnimationFrame( this._dispatchEvents.bind(this) );
+				this._nextDispatch = requestAnimationFrame(this._dispatchEvents.bind(this));
 
 			} else if (this._timingMode === enums.FASTFRAME) {
-				this._nextDispatch = requestAnimationFrame( function() {
+				this._nextDispatch = requestAnimationFrame(function () {
 					this._dispatchEvents(min);
 				}.bind(this));
 
@@ -490,7 +492,3 @@ export default class Hand {
 	}
 
 }
-
-
-
-

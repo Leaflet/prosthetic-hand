@@ -37,7 +37,7 @@ export default class Finger {
 
 		this._hand = options.hand;
 
-		/// TODO: parkinsonFactor or shakesFactor or jitteryness or something
+		// TODO: parkinsonFactor or shakesFactor or jitteryness or something
 
 
 		// 🖑section Finger state
@@ -145,14 +145,14 @@ export default class Finger {
 	// 🖑method down(delay?: Number): this
 	// Puts the finger down, optionally after a delay.
 	down(delay) {
-		return this.update({ down: true, getState: this._falseFn, duration: delay || 0 });
+		return this.update({down: true, getState: this._falseFn, duration: delay || 0});
 	}
 
 
 	// 🖑method up(options?: {}): this
 	// Lifts the finger up, after an optional delay.
 	up(delay) {
-		return this.update({ down: false, getState: this._falseFn, duration: delay || 0 });
+		return this.update({down: false, getState: this._falseFn, duration: delay || 0});
 	}
 
 
@@ -168,7 +168,7 @@ export default class Finger {
 	// Don't move this finger until the given timestamp is reached.
 	waitUntil(timestamp) {
 		if (this._movements.length) {
-			return this.wait( timestamp - this._movesUntil );
+			return this.wait(timestamp - this._movesUntil);
 		} else {
 			var move = {
 				finalState: this._finalState,
@@ -196,7 +196,7 @@ export default class Finger {
 
 	// 🖑method reset(options?: {}): this
 	// Clears all the queued movements for this finger and immediately lifts it up
-	reset(options) {
+	reset() {
 		return this;
 	}
 
@@ -220,22 +220,22 @@ export default class Finger {
 		var move = {
 			finalState: {
 				x: fromX + x,
-				y: fromY + y,
+				y: fromY + y
 			},
 
-			getState: (function(x1, y1, dx, dy){
-				return function(msec) {
+			getState: (function (x1, y1, dx, dy) {
+				return function (msec) {
 					var percent = msec / delay;
 					return {
 						x: Math.round(x1 + (dx * percent)),
 						y: Math.round(y1 + (dy * percent))
-					}
-				}
+					};
+				};
 			})(fromX, fromY, x, y, delay),
 
 			duration: delay
 // 			until: this._movesUntil + delay
-		}
+		};
 
 		this._queueMove(move);
 
@@ -250,7 +250,7 @@ export default class Finger {
 
 
 	// Queues a movement
-	_queueMove( move ) {
+	_queueMove(move) {
 
 		if (!this._movements.length) {
 			this._movesUntil = this._movesFrom = performance.now();
@@ -319,7 +319,7 @@ export default class Finger {
 		if (this._movements.length && !(changed && justOne)) {
 			var move = this._movements[0];
 
-			var updatedState = move.getState( now - this._movesFrom );
+			var updatedState = move.getState(now - this._movesFrom);
 
 			if (updatedState && !this._statesAreEqual(updatedState, this._state)) {
 				changed = true;
@@ -332,22 +332,22 @@ export default class Finger {
 			this._hand.fingerIsIdle();
 		}
 
-// 		// TODO: Add jitter if needed
+		// TODO: Add jitter if needed
 
 		var evType = 'idle';
 
 		if (changed) {
 
 			if (previousState.x !== this._state.x || previousState.y !== this._state.y) {
-				evType = 'move'
+				evType = 'move';
 				this._currentTarget = document.elementFromPoint(this._state.x, this._state.y);
 			}
-			/// TODO: Detect over/out events when the event target changes.
+			// TODO: Detect over/out events when the event target changes.
 
 			if (previousState.down && (!this._state.down)) {
 				this._graphic.style.display = 'none';
 				evType = 'up';
-			} else if ((!previousState.down) && this._state.down){
+			} else if ((!previousState.down) && this._state.down) {
 				// TODO: Optionally reset the finger ID and grab a fresh one
 
 				this._graphic.style.display = 'block';
@@ -364,11 +364,11 @@ export default class Finger {
 			if (evType === 'idle') {
 				return [];
 			}
-			/// TODO: Check for mouseover/mouseout events, add them to the
-			/// array.
-			/// TODO: Create synthetic `click` and `dblclick` events if/when
-			/// needed, add them to the array.
-			return [{ type: evType, event: this._asMouseEvent(evType), finger: this }];
+			// TODO: Check for mouseover/mouseout events, add them to the
+			// array.
+			// TODO: Create synthetic `click` and `dblclick` events if/when
+			// needed, add them to the array.
+			return [{type: evType, event: this._asMouseEvent(evType), finger: this}];
 		}
 
 		// `PointerEvent`s
@@ -376,18 +376,18 @@ export default class Finger {
 			if (evType === 'idle') {
 				return [];
 			}
-			/// TODO: Check for pointerover/pointerout events, add them to the
-			/// array.
-			/// TODO: Create synthetic `click` and `dblclick` events if/when
-			/// needed, add them to the array.
-			return [{ type: evType, event: this._asPointerEvent(evType), finger: this }];
+			// TODO: Check for pointerover/pointerout events, add them to the
+			// array.
+			// TODO: Create synthetic `click` and `dblclick` events if/when
+			// needed, add them to the array.
+			return [{type: evType, event: this._asPointerEvent(evType), finger: this}];
 		}
 
 		// `Touch`es
 		if (this._mode === 'touch') {
 			if (this._touchTargetWhenDowned) {
 
-				var ret = [{ type: evType, touch: this._asTouch(evType), finger: this }];
+				var ret = [{type: evType, touch: this._asTouch(evType), finger: this}];
 				if (evType === 'up') {
 					this._touchTargetWhenDowned = undefined;
 				}
@@ -415,7 +415,7 @@ export default class Finger {
 				target: this._touchTargetWhenDowned,
 				clientX: this._state.x,
 				clientY: this._state.y,
-				screenX: this._state.x,	/// TODO: Handle page scrolling
+				screenX: this._state.x,	// TODO: Handle page scrolling
 				screenY: this._state.y,
 				pageX: this._state.x,
 				pageY: this._state.y,
@@ -482,7 +482,7 @@ export default class Finger {
 // 			detail: (evType === 'down' || evType === 'up') ? 1 : 0,	// TODO: count consecutive clicks
 			clientX: this._state.x,
 			clientY: this._state.y,
-			screenX: this._state.x,	/// TODO: Handle page scrolling
+			screenX: this._state.x,	// TODO: Handle page scrolling
 			screenY: this._state.y,
 			pageX: this._state.x,
 			pageY: this._state.y,
@@ -511,10 +511,10 @@ export default class Finger {
 				detail:  (evType === 'down' || evType === 'up') ? 1 : 0,	// TODO: count consecutive clicks
 				clientX: this._state.x,
 				clientY: this._state.y,
-				screenX: this._state.x,	/// TODO: Handle page scrolling
+				screenX: this._state.x,	// TODO: Handle page scrolling
 				screenY: this._state.y,
 				pageX:   this._state.x,
-				pageY:   this._state.y,
+				pageY:   this._state.y
 	// 			target: document.elementFromPoint(this._state.x, this._state.y),	// works with viewport coords
 			});
 		} else {
@@ -610,10 +610,3 @@ export default class Finger {
 
 
 }
-
-
-
-
-
-
-

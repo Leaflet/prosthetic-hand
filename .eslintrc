@@ -1,0 +1,33 @@
+{
+  "globals": {
+    "L": true,
+    "PointerEvent": true,
+    "Hand": true,
+    "chai": true,
+  },
+  "parser": "babel-eslint",
+  "env": {
+    "commonjs": true,
+    "amd": true,
+    "node": false
+  },
+  "ecmaFeatures": {
+      "modules": true
+  },
+  "extends": "mourner",
+  "rules": {
+      "comma-dangle": 0,
+      "curly": 2,
+      "indent": [2, "tab", {
+        "VariableDeclarator": 0,
+        "SwitchCase": 1
+      }],
+      "key-spacing": 0,
+      "no-lonely-if": 0,
+      "no-mixed-spaces-and-tabs": [2, "smart-tabs"],
+      "no-undef-init": 0,
+      "spaced-comment": 2,
+      "strict": 0,
+      "wrap-iife": 0,
+  }
+}

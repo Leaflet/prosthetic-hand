@@ -153,16 +153,14 @@ apply only to a specific event mode.
 		<td>Returns true when the finger has no more pending movements/waits/wiggles/etc.</td>
 	</tr>
 	<tr id='finger-down'>
-		<td><code><b>down</b>(<nobr>&lt;{}&gt; <i>options?</i></nobr>)</nobr></code></td>
+		<td><code><b>down</b>(<nobr>&lt;Number&gt; <i>delay?</i></nobr>)</nobr></code></td>
 		<td><code>this</code></td>
-		<td>Puts the finger down at the absolute <code>(x, y)</code> coordinates, optionally
-setting some details like pressure or touch angle (if they make sense
-to the current <code>fingerMode</code>).</td>
+		<td>Puts the finger down, optionally after a delay.</td>
 	</tr>
 	<tr id='finger-up'>
 		<td><code><b>up</b>(<nobr>&lt;{}&gt; <i>options?</i></nobr>)</nobr></code></td>
 		<td><code>this</code></td>
-		<td>Lifts the finger up.</td>
+		<td>Lifts the finger up, after an optional delay.</td>
 	</tr>
 	<tr id='finger-wait'>
 		<td><code><b>wait</b>(<nobr><i>delay</i></nobr>)</nobr></code></td>
@@ -173,7 +171,7 @@ to the current <code>fingerMode</code>).</td>
 		<td><code><b>update</b>(<nobr>&lt;{}&gt; <i>options?</i></nobr>)</nobr></code></td>
 		<td><code>this</code></td>
 		<td>Updates some of the finger options, like pressure or touch angle,
-without disturbing its movement</td>
+without disturbing its movement, after an optional delay.</td>
 	</tr>
 	<tr id='finger-reset'>
 		<td><code><b>reset</b>(<nobr>&lt;{}&gt; <i>options?</i></nobr>)</nobr></code></td>
@@ -192,13 +190,20 @@ movement will last for <code>delay</code> milliseconds.</td>
 		<td>Queues a move of this finger to an position relative to its last position
 plus<code>(x, y)</code>; the movement will last for <code>delay</code> milliseconds.</td>
 	</tr>
+	<tr id='finger-getnextmoveendtime'>
+		<td><code><b>getNextMoveEndTime</b>()</nobr></code></td>
+		<td><code>Number|undefined</code></td>
+		<td></td>
+	</tr>
 	<tr id='finger-getevents'>
-		<td><code><b>getEvents</b>(<nobr>&lt;Number&gt; <i>timestamp?</i></nobr>)</nobr></code></td>
+		<td><code><b>getEvents</b>(<nobr>&lt;Number&gt; <i>timestamp?</i></nobr>, <nobr>&lt;Boolean&gt; <i>justOne</i></nobr>)</nobr></code></td>
 		<td><code>[]</code></td>
 		<td>Updates the private properties of the finger (x, y, timestamp) by
 running the next movement(s) as far as indicated by the timestamp (or
 as fas as to <code>performance.now()</code>), then checks if the state has changed
 and means an event should be fired.
+If <code>justOne</code> is set to truthy, then this will run just one movements.
+Otherwise, it will run as many movements as needed until <code>timestamp</code> is reached.
 Returns an array of objects of the form <code>{type: &#39;foo&#39;, event: MouseEvent(...), finger: Finger}</code>
 or <code>{type: &#39;foo&#39;, touch: Touch(...), finger: Finger}</code>, with all the active <code>Touch</code>es or
 all triggered mouse/pointer events triggered by executing moves until
@@ -279,11 +284,10 @@ Note this is not an event - a <code>TouchEvent</code> must be created later, wit
 	</thead><tbody>
 	<tr id='hand-timing'>
 		<td><code><b>timing</b></code></td>
-		<td><code>'20ms'</code>
-		<td><code></code></td>
-		<td>Defines how often new events will be fired. If the value is a number
-followed by <code>&#39;ms&#39;</code>, then it specified how many milliseconds to wait
-between event dispatches.</td>
+		<td><code><a href='#timing'>Timing</a></code>
+		<td><code>&#x27;20ms&#x27;</code></td>
+		<td>Defines how often new events will be fired, in one of the possible
+timing modes</td>
 	</tr>
 </tbody></table>
 </section>
@@ -324,6 +328,60 @@ all the queued movements.</td>
 		<td>Updates all the fingers, fetching their events/touchpoints, and dispatches
 all <code>Event</code>s triggered by the update.
 This is meant to be called on an internal timer.</td>
+	</tr>
+</tbody></table>
+</section>
+
+<h2 id='timing'></h2>
+
+<h3 id='timing-option'>Timing</h3>
+
+<section data-type='[object Object]'>
+
+
+<table><thead>
+	<tr>
+		<th>Option</th>
+		<th>Type</th>
+		<th>Default</th>
+		<th>Description</th>
+	</tr>
+	</thead><tbody>
+	<tr id='timing-ms'>
+		<td><code><b>ms</b></code></td>
+		<td><code></code>
+		<td><code></code></td>
+		<td>Preceded by a number (e.g. <code>&#39;20ms&#39;</code>), this mode triggers an event
+dispatch every that many milliseconds.</td>
+	</tr>
+	<tr id='timing-frame'>
+		<td><code><b>frame</b></code></td>
+		<td><code></code>
+		<td><code></code></td>
+		<td>This mode dispatches an event every <a href="https://developer.mozilla.org/docs/Web/API/Window/requestAnimationFrame">animation frame</a>.</td>
+	</tr>
+	<tr id='timing-minimal'>
+		<td><code><b>minimal</b></code></td>
+		<td><code></code>
+		<td><code></code></td>
+		<td>This mode triggers an event dispatch per finger change, and ensures
+that every move can trigger its own event (no two movements will be
+rolled into one event if they are very close).</td>
+	</tr>
+	<tr id='timing-instant'>
+		<td><code><b>instant</b></code></td>
+		<td><code></code>
+		<td><code></code></td>
+		<td>Like the <code>minimal</code> mode, but ignores timings completely and dispatches
+all events instantaneously. This might cause misbehaviour in graphical
+browsers.</td>
+	</tr>
+	<tr id='timing-fastframe'>
+		<td><code><b>fastframe</b></code></td>
+		<td><code></code>
+		<td><code></code></td>
+		<td>This mode ignores timings completely like the <code>instant</code> mode, and
+dispatches a new event every so many frames.</td>
 	</tr>
 </tbody></table>
 </section>

@@ -20,7 +20,7 @@
     "gobble": "^0.10.2",
     "gobble-cli": "^0.6.0",
     "gobble-leafdoc": "^0.1.7",
-    "gobble-rollup": "^0.25.0",
+    "gobble-rollup": "^0.26.3",
     "rollup-plugin-babel": "^2.4.0"
   }
 }

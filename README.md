@@ -39,6 +39,11 @@ Read the Leaflet guidelines at https://github.com/Leaflet/Leaflet/blob/master/CO
 
 Whenever making a bugfix or a new feature, notify [IvanSanchez](https://github.com/IvanSanchez) so that a new version can be published to NPM.
 
+## Similar projects
+
+* https://github.com/francejs/effroi (three years old)
+* The simulator from http://hammerjs.github.io/ (too basic)
+
 ## Legalese
 
 #### "THE BEER-WARE LICENSE":

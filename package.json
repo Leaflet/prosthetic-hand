@@ -15,12 +15,13 @@
   "author": "Iván Sánchez Ortega <ivan@sanchezortega.es>",
   "license": "Beerware",
   "devDependencies": {
-    "babel-plugin-transform-object-assign": "^6.5.0",
-    "babel-preset-es2015-rollup": "^1.1.1",
-    "gobble": "^0.10.2",
-    "gobble-cli": "^0.6.0",
-    "gobble-leafdoc": "^0.1.7",
-    "gobble-rollup": "^0.26.3",
-    "rollup-plugin-babel": "^2.4.0"
+    "babel-plugin-transform-object-assign": "^6.22.0",
+    "babel-preset-es2015-rollup": "^3.0.0",
+    "gobble": "^0.12.0",
+    "gobble-cli": "^0.8.0",
+    "gobble-leafdoc": "^0.1.8",
+    "gobble-rollup": "^0.40.0",
+    "rollup-plugin-babel": "^3",
+    "babel-core": "^6.26.3"
   }
 }

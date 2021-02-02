@@ -18,7 +18,7 @@ var rolledUpSrc = src.transform('rollup', {
 });
 
 var doc = src.transform('leafdoc', {
-	templateDir: 'node_modules/gobble-leafdoc/node_modules/leafdoc/templates/basic',
+	templateDir: 'node_modules/leafdoc/templates/basic',
 	files: [
 		'**/*'
 	],

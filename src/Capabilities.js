@@ -65,7 +65,7 @@ export var mouse = !!('MouseEvent' in window);
 export var touch = !!('TouchEvent' in window);
 
 // pointer: `true` if the browser implements `PointerEvent`
-export var pointer = !!('PointerEvent' in window);
+export var pointer = !!('PointerEvent' in window || 'MSPointerEvent' in window);
 
 
 

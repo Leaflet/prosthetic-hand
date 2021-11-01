@@ -475,27 +475,62 @@ export default class Finger {
 	// 🖑method private_asPointerEvent(): PointerEvent
 	// Returns an instance of `PointerEvent` representing the current state of the finger
 	_asPointerEvent(evType) {
-		var ev = new PointerEvent('pointer' + evType, {
-			bubbles: true,
-			button: 0,	// Moz doesn't use -1 when no buttons are pressed, WTF?
-// 			buttons: this._state.down ? 1 : 0,
-// 			detail: (evType === 'down' || evType === 'up') ? 1 : 0,	// TODO: count consecutive clicks
-			clientX: this._state.x,
-			clientY: this._state.y,
-			screenX: this._state.x,	/// TODO: Handle page scrolling
-			screenY: this._state.y,
-			pageX: this._state.x,
-			pageY: this._state.y,
-			pointerType: 'pen',
-			pointerId: this._id,
-			isPrimary: this._id === 1,
-			width: this._state.width,
-			height: this._state.height,
-			tiltX: this._state.tiltX,
-			tiltY: this._state.tiltY,
-			pressure: this._state.pressure
-// 			target: document.elementFromPoint(this._state.x, this._state.y),	// works with viewport coords
-		});
+		var ev;
+		if (capabilities.pointerEventConstructor) {
+			ev = new PointerEvent('pointer' + evType, {
+				bubbles: true,
+				button: 0,	// Moz doesn't use -1 when no buttons are pressed, WTF?
+// 				buttons: this._state.down ? 1 : 0,
+//	 			detail: (evType === 'down' || evType === 'up') ? 1 : 0,	// TODO: count consecutive clicks
+				clientX: this._state.x,
+				clientY: this._state.y,
+				screenX: this._state.x,	/// TODO: Handle page scrolling
+				screenY: this._state.y,
+				pageX: this._state.x,
+				pageY: this._state.y,
+				pointerType: 'pen',
+				pointerId: this._id,
+				isPrimary: this._id === 1,
+				width: this._state.width,
+				height: this._state.height,
+				tiltX: this._state.tiltX,
+				tiltY: this._state.tiltY,
+				pressure: this._state.pressure
+// 				target: document.elementFromPoint(this._state.x, this._state.y),	// works with viewport coords
+			});
+		} else {
+			ev = document.createEvent('MSPointerEvent');
+			// https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/jj192039(v=vs.85)
+			ev.initPointerEvent(
+				'pointer' + evType,    // Type
+				true,                  // canBubble
+				true,                  // cancelable
+				window,                // view
+				0,                     // detail
+				this._state.x,         // screenX
+				this._state.y,         // screenY
+				this._state.x,         // clientX
+				this._state.y,         // clientY
+				false,                 // ctrlKey
+				false,                 // altKey
+				false,                 // shiftKey
+				false,                 // metaKey
+				0,                     // button
+				null,                  // relatedTarget,
+				0,                     // offsetX?
+				0,                     // offsetY?
+				this._state.width,     // width
+				this._state.height,    // height
+				this._state.pressure,  // pressure
+				0,                     // rotation?
+				this._state.tiltX,     // tiltX
+				this._state.tiltY,     // tiltY
+				this._id,              // pointerId
+				'pen',                 // pointerType
+				0,                     // hwTimestamp?
+				this._id === 1         // isPrimary
+			);
+		}
 		return ev;
 	}
 

@@ -162,20 +162,6 @@ export default class Hand {
 	fingerIsIdle() {
 
 		if (this._fingers.every( f => f.isIdle())) {
-
-			if (!this._fingersAreIdle) {
-				// 🖑event prostheticHandStop: CustomEvent
-				// Fired when all movements are complete.
-
-				document.dispatchEvent(new CustomEvent('prostheticHandStop', {target: this}));
-				
-
-				if (this._onStop && this._onStop instanceof Function) {
-					this._onStop(this);
-				}
-
-			}
-
 			this._fingersAreIdle = true;
 		}
 	}
@@ -453,7 +439,18 @@ export default class Hand {
 
 
 	_scheduleNextDispatch(){
-		if (!this._fingersAreIdle) {
+		if (this._fingersAreIdle) {
+			// 🖑event prostheticHandStop: CustomEvent
+			// Fired when all movements are complete.
+
+			document.dispatchEvent(new CustomEvent('prostheticHandStop', {target: this}));
+				
+
+			if (this._onStop && this._onStop instanceof Function) {
+				this._onStop(this);
+			}
+
+		} else {
 
 			// Calculate time for next movement end. Could be refactored out for
 			// some timing modes.

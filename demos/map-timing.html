@@ -1,145 +1,129 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<title>Prosthetic hand stuff</title>
-	<style>
-	#map {
-		width:600px;
-		height:400px;
-		background: #eee;
-	}
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Prosthetic Hand &dash; Map Timing</title>
+		<style>
+			#map {
+				width: 600px;
+				height: 400px;
+				background: #eee;
+			}
 
-	body {
-		width: 100vw;
-		height: 100vh;
-		background: rgb(240, 255, 240);
-	}
+			body {
+				width: 100vw;
+				height: 100vh;
+				background: rgb(240, 255, 240);
+			}
+		</style>
+		<link href="/node_modules/leaflet/dist/leaflet.css" rel="stylesheet">
+		<script type="importmap">
+			{
+				"imports": {
+					"leaflet": "/node_modules/leaflet/dist/leaflet-src.esm.js",
+					"prosthetic-hand": "/lib/Hand.js"
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="map"></div>
+		<p>This demo runs <samp>MouseEvent</samp> in different hands with different timing methods.</p>
+		<p><button id="pan20" type="button">Pan with one event every 20 milliseconds</button></p>
+		<p><button id="pan250" type="button">Pan with one event every 250 milliseconds</button></p>
+		<p><button id="panMinimal" type="button">Pan with with as few events as possible</button></p>
+		<p><button id="panInstant" type="button">Pan instantly with as few events as possible</button> This will probably have no effect, as the time between events is less than one frame and graphical browsers misbehave.</p>
+		<p><button id="panFrames" type="button">Pan with one event per frame.</button></p>
+		<p><button id="panFastFrames" type="button">Pan with as few events as possible, at one event per frame.</button> This will also disable pan <samp>inertia</samp> momentarily.</p>
+		<script type="module">
+			import Hand from 'prosthetic-hand';
+			import {Map, LatLng, TileLayer} from 'leaflet';
 
-	</style>
+			function onStart() {
+				console.log('hand started moving');
+			};
+			
+			function onStop() {
+				console.log('hand stopped moving');
+			}
+			
+			const h1 = new Hand({ timing: '20ms' , onStart, onStop });
+			const f1 = h1.growFinger('mouse');
 
-	<script>
+			const h2 = new Hand({ timing: '250ms' , onStart, onStop });
+			const f2 = h2.growFinger('mouse');
 
-	// Trick Leaflet into believing we have a touchscreen (Chrome)
-	window.ontouchstart = function(){};
+			const h3 = new Hand({ timing: 'minimal' , onStart, onStop });
+			const f3 = h3.growFinger('mouse');
 
-	</script>
+			const h4 = new Hand({ timing: 'instant' , onStart, onStop });
+			const f4 = h4.growFinger('mouse');
 
-	<link href="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.css" rel="stylesheet" type="text/css" />
-	<script src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet-src.js"></script>
+			const h5 = new Hand({ timing: 'frame' , onStart, onStop });
+			const f5 = h5.growFinger('mouse');
 
-<!-- 	<script src='dist/prosthetic-hand.js'/></script> -->
-<!-- 	<script src='http://localhost:4567/prosthetic-hand.js'/></script> -->
-	<script src='../prosthetic-hand.js'/></script>
+			const h6 = new Hand({ timing: 'fastframe' , onStart, onStop });
+			const f6 = h6.growFinger('mouse');
 
+			document.getElementById('pan20').addEventListener('click', pan20);
+			document.getElementById('pan250').addEventListener('click', pan250);
+			document.getElementById('panMinimal').addEventListener('click', panMinimal);
+			document.getElementById('panInstant').addEventListener('click', panInstant);
+			document.getElementById('panFrames').addEventListener('click', panFrames);
+			document.getElementById('panFastFrames').addEventListener('click', panFastFrames);
 
+			function pan20() {
+				f1.wait(1000).moveTo(200, 200, 0)
+					.down(10).moveBy(200, 0, 1000).up(10).wait(1000)
+					.down(10).moveBy(-200, 0, 1000).up(10).wait(1000);
+			}
 
-</head>
-<body>
-	<div id='map'></div>
+			function pan250() {
+				f2.wait(1000).moveTo(200, 200, 0)
+					.down(10).moveBy(200, 0, 1000).up(10).wait(1000)
+					.down(10).moveBy(-200, 0, 1000).up(10).wait(1000);
+			}
 
-	<p>This demo runs <tt>MouseEvent</tt>s in different hands with different timing methods.</p>
+			function panMinimal() {
+				// Leaflet needs a move of more than 3 pixels (hardcoded in draggable.js)
+				// to trigger a dragstart (but only for touch-enabled browsers). That's
+				// the reason for the 5-pixel move.
+				f3.wait(1000).moveTo(200, 200, 0)
+					.down(10).moveBy(5,0,50).moveBy(200, 0, 500).up(100).wait(1000)
+					.down(10).moveBy(-5,0,50).moveBy(-200, 0, 500).up(100).wait(1000)
+			}
 
-	<p><button onclick='pan20()'     >Pan with one event every 20 milliseconds</button></p>
-	<p><button onclick='pan250()'    >Pan with one event every 250 milliseconds</button></p>
-	<p><button onclick='panMinimal()'>Pan with with as few events as possible</button></p>
-	<p><button onclick='panInstant()'>Pan instantly with as few events as possible</button> This will probably have no effect, as the time between events is less than one frame and graphical browsers misbehave.</p>
-	<p><button onclick='panFrames()' >Pan with one event per frame.</button></p>
-	<p><button onclick='panFastFrames()'>Pan with as few events as possible, at one event per frame.</button> This will also disable pan <tt>inertia</tt> momentarily.</p>
+			function panInstant() {
+				f4.wait(1000).moveTo(200, 200, 0)
+					.down(10).moveBy(5,0,50).moveBy(200, 0, 500).up(100).wait(1000)
+					.down(10).moveBy(-5,0,50).moveBy(-200, 0, 500).up(100).wait(1000)
+			}
 
-	<p>
+			function panFrames() {
+				f5.wait(1000).moveTo(200, 200, 0)
+					.down(10).moveBy(200, 0, 500).up(100).wait(1000)
+					.down(10).moveBy(-200, 0, 500).up(100).wait(1000)
+			}
 
-	<script>
+			function panFastFrames() {
+				map.options.inertia = false;
+				f6.wait(1000).moveTo(200, 200, 0)
+					.down(10).moveBy(5,0,50).moveBy(200, 0, 500).up(100).wait(1000)
+					.down(10).moveBy(-5,0,50).moveBy(-200, 0, 500).up(100).wait(1000)
 
-	var onStart = function() {
-		console.log('hand started moving');
-	};
-	
-	var onStop = function(){
-		console.log('hand stopped moving');
-	}
-	
-	var h1 = new Hand({ timing: '20ms' , onStart: onStart, onStop: onStop});
-	var f1 = h1.growFinger('mouse');
+				setTimeout(() => {
+					map.options.inertia = false;
+				}, 5000);
+			}
 
-	var h2 = new Hand({ timing: '250ms' , onStart: onStart, onStop: onStop});
-	var f2 = h2.growFinger('mouse');
+			const map = new Map('map', { center: new LatLng(45, 6), zoom: 4 });
+			const positron = new TileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attribution/">CartoDB</a>'
+			}).addTo(map);
 
-	var h3 = new Hand({ timing: 'minimal' , onStart: onStart, onStop: onStop});
-	var f3 = h3.growFinger('mouse');
-
-	var h4 = new Hand({ timing: 'instant' , onStart: onStart, onStop: onStop});
-	var f4 = h4.growFinger('mouse');
-
-	var h5 = new Hand({ timing: 'frame' , onStart: onStart, onStop: onStop});
-	var f5 = h5.growFinger('mouse');
-
-	var h6 = new Hand({ timing: 'fastframe' , onStart: onStart, onStop: onStop});
-	var f6 = h6.growFinger('mouse');
-
-
-	function pan20() {
-		f1.wait(1000).moveTo(200, 200, 0)
-			.down(10).moveBy(200, 0, 1000).up(10).wait(1000)
-			.down(10).moveBy(-200, 0, 1000).up(10).wait(1000);
-	}
-
-	function pan250() {
-		f2.wait(1000).moveTo(200, 200, 0)
-			.down(10).moveBy(200, 0, 1000).up(10).wait(1000)
-			.down(10).moveBy(-200, 0, 1000).up(10).wait(1000);
-	}
-
-	function panMinimal() {
-		// Leaflet needs a move of more than 3 pixels (hardcoded in draggable.js)
-		// to trigger a dragstart (but only for touch-enabled browsers). That's
-		// the reason for the 5-pixel move.
-		f3.wait(1000).moveTo(200, 200, 0)
-			.down(10).moveBy(5,0,50).moveBy(200, 0, 500).up(100).wait(1000)
-			.down(10).moveBy(-5,0,50).moveBy(-200, 0, 500).up(100).wait(1000)
-	}
-
-	function panInstant() {
-		f4.wait(1000).moveTo(200, 200, 0)
-			.down(10).moveBy(5,0,50).moveBy(200, 0, 500).up(100).wait(1000)
-			.down(10).moveBy(-5,0,50).moveBy(-200, 0, 500).up(100).wait(1000)
-	}
-
-	function panFrames() {
-		f5.wait(1000).moveTo(200, 200, 0)
-			.down(10).moveBy(200, 0, 500).up(100).wait(1000)
-			.down(10).moveBy(-200, 0, 500).up(100).wait(1000)
-	}
-
-	function panFastFrames() {
-		map.options.inertia = false;
-		f6.wait(1000).moveTo(200, 200, 0)
-			.down(10).moveBy(5,0,50).moveBy(200, 0, 500).up(100).wait(1000)
-			.down(10).moveBy(-5,0,50).moveBy(-200, 0, 500).up(100).wait(1000)
-
-		setTimeout(function() {map.options.inertia = false;}, 5000);
-	}
-
-    var myCenter = new L.LatLng(45, 6);
-    var map = new L.Map('map', {center: myCenter, zoom: 4});
-
-    var positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
-    }).addTo(map);
-
-
-
-    map.on('mousedown mouseup mousemove', function(ev){
-// 		console.log('L: ', performance.now(), JSON.stringify(ev.originalEvent));
-		console.log('L: ', performance.now(), ev.originalEvent);
-	});
-
-//     L.DomEvent.on(document.body, 'touchstart touchend touchmove', function(ev){
-//     L.DomEvent.on(document.body, 'touchstart touchend', function(ev){
-// 		console.log('B: ', ev.type, ev.touches.length, ev.changedTouches.length, ev.target, ev);
-// 	});
-//     map.on('mousemove', function(ev){ console.log(ev.originalEvent); });
-
-  </script>
-</body>
+			map.on('mousedown mouseup mousemove', (ev) => {
+				console.log('L: ', performance.now(), ev.originalEvent);
+			});
+		</script>
+	</body>
 </html>

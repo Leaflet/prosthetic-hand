@@ -1,102 +1,83 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<title>Prosthetic hand stuff</title>
-	<style>
-	#map {
-		width:600px;
-		height:400px;
-		background: #eee;
-	}
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Prosthetic Hand &dash; Map Pan</title>
+		<style>
+			#map {
+				width: 600px;
+				height: 400px;
+				background: #eee;
+			}
 
-	body {
-		width: 100vw;
-		height: 100vh;
-		background: rgb(240, 255, 240);
-	}
+			body {
+				width: 100vw;
+				height: 100vh;
+				background: rgb(240, 255, 240);
+			}
+		</style>
+		<link href="/node_modules/leaflet/dist/leaflet.css" rel="stylesheet">
+		<script type="importmap">
+			{
+				"imports": {
+					"leaflet": "/node_modules/leaflet/dist/leaflet-src.esm.js",
+					"prosthetic-hand": "/lib/Hand.js"
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="map"></div>
+		<p><button id="panWithMouse" type="button">Pan with emulated <samp>MouseEvent</samp></button></p>
+		<p><button id="panWithTouch" type="button">Pan with emulated <samp>TouchEvent</samp></button></p>
+		<p><button id="panWithPen" type="button">Pan with emulated <samp>PointerEvent</samp></button></p>
+		<p>
+			This demo runs the following code with different fingers:<br><br>
+			<samp>
+				finger.wait(1000).moveTo(200, 200, 0)<br>
+				&nbsp;&nbsp;.down().moveBy(200, 0, 1000).up().wait(1000)<br>
+				&nbsp;&nbsp;.down().moveBy(-200, 0, 1000).up().wait(1000);<br>
+			</samp>
+		</p>
+		<script type="module">
+			import Hand from 'prosthetic-hand';
+			import {Map, LatLng, TileLayer} from 'leaflet';
 
-	</style>
+			const hand = new Hand();
+			const fingerMouse = hand.growFinger('mouse');
+			const fingerTouch = hand.growFinger('touch');
+			const fingerPen = hand.growFinger('pointer', { pointerType: 'pen' });
 
-	<script>
+			document.getElementById('panWithMouse').addEventListener('click', panWithMouse);
+			document.getElementById('panWithTouch').addEventListener('click', panWithTouch);
+			document.getElementById('panWithPen').addEventListener('click', panWithPen);
 
-	// Trick Leaflet into believing we have a touchscreen (Chrome)
-	window.ontouchstart = function(){};
+			function panWithMouse() {
+				fingerMouse.wait(1000).moveTo(200, 200, 0)
+					.down().moveBy(200, 0, 1000).up().wait(1000)
+					.down().moveBy(-200, 0, 1000).up().wait(1000);
+			}
 
-	</script>
+			function panWithTouch() {
+				fingerTouch.wait(1000).moveTo(200, 200, 0)
+					.down().moveBy(200, 0, 1000).up().wait(1000)
+					.down().moveBy(-200, 0, 1000).up().wait(1000);
+			}
 
-	<link href="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.css" rel="stylesheet" type="text/css" />
-	<script src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet-src.js"></script>
+			function panWithPen() {
+				fingerPen.wait(1000).moveTo(200, 200, 0)
+					.down().moveBy(200, 0, 1000).up().wait(1000)
+					.down().moveBy(-200, 0, 1000).up().wait(1000);
+			}
 
-<!-- 	<script src='dist/prosthetic-hand.js'/></script> -->
-<!-- 	<script src='http://localhost:4567/prosthetic-hand.js'/></script> -->
-	<script src='../prosthetic-hand.js'/></script>
+			const map = new Map('map', { center: new LatLng(45, 6), zoom: 4 });
+			const positron = new TileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attribution/">CartoDB</a>'
+			}).addTo(map);
 
-
-
-</head>
-<body>
-	<div id='map'></div>
-
-	<p><button onclick='panWithMouse()'>Pan with emulated <tt>MouseEvent</tt>s</button></p>
-	<p><button onclick='panWithTouch()'>Pan with emulated <tt>TouchEvent</tt>s</button></p>
-	<p><button onclick='panWithPen()'  >Pan with emulated <tt>PointerEvent</tt>s</button></p>
-
-	<p>
-	This demo runs the following code with different fingers:
-	<pre>
-finger.wait(1000).moveTo(200, 200, 0)
-	.down().moveBy(200, 0, 1000).up().wait(1000)
-	.down().moveBy(-200, 0, 1000).up().wait(1000);
-	</pre>
-	</p>
-
-	<script>
-
-	var h = new Hand();
-
-	var f1 = h.growFinger('mouse');
-	var f2 = h.growFinger('touch');
-	var f3 = h.growFinger('pointer', { pointerType: 'pen' });
-
-	function panWithMouse() {
-		f1.wait(1000).moveTo(200, 200, 0)
-			.down().moveBy(200, 0, 1000).up().wait(1000)
-			.down().moveBy(-200, 0, 1000).up().wait(1000);
-	}
-
-	function panWithTouch() {
-		f2.wait(1000).moveTo(200, 200, 0)
-			.down().moveBy(200, 0, 1000).up().wait(1000)
-			.down().moveBy(-200, 0, 1000).up().wait(1000);
-	}
-
-	function panWithPen() {
-		f3.wait(1000).moveTo(200, 200, 0)
-			.down().moveBy(200, 0, 1000).up().wait(1000)
-			.down().moveBy(-200, 0, 1000).up().wait(1000);
-	}
-
-    var myCenter = new L.LatLng(45, 6);
-    var map = new L.Map('map', {center: myCenter, zoom: 4});
-
-    var positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
-    }).addTo(map);
-
-
-
-    map.on('mousedown mouseup', function(ev){
-// 		console.log('L: ', performance.now(), JSON.stringify(ev.originalEvent));
-		console.log('L: ', performance.now(), ev.originalEvent);
-	});
-
-//     L.DomEvent.on(document.body, 'touchstart touchend touchmove', function(ev){
-//     L.DomEvent.on(document.body, 'touchstart touchend', function(ev){
-// 		console.log('B: ', ev.type, ev.touches.length, ev.changedTouches.length, ev.target, ev);
-// 	});
-//     map.on('mousemove', function(ev){ console.log(ev.originalEvent); });
-
-  </script>
-</body>
+			map.on('mousedown mouseup', (ev) => {
+				console.log('L: ', performance.now(), ev.originalEvent);
+			});
+		</script>
+	</body>
 </html>

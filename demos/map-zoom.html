@@ -1,131 +1,92 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<title>Prosthetic hand stuff</title>
-	<style>
-	#map {
-		width:600px;
-		height:400px;
-		background: #eee;
-	}
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Prosthetic Hand &dash; Map Zoom</title>
+		<style>
+			#map {
+				width: 600px;
+				height: 400px;
+				background: #eee;
+			}
 
-	body {
-		width: 100vw;
-		height: 100vh;
-		background: rgb(240, 255, 240);
-	}
+			body {
+				width: 100vw;
+				height: 100vh;
+				background: rgb(240, 255, 240);
+			}
+		</style>
+		<link href="/node_modules/leaflet/dist/leaflet.css" rel="stylesheet">
+		<script type="importmap">
+			{
+				"imports": {
+					"leaflet": "/node_modules/leaflet/dist/leaflet-src.esm.js",
+					"prosthetic-hand": "/lib/Hand.js"
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div id="map"></div>
+		<p><button id="zoomWithTouch" type="button">Zoom with emulated <samp>TouchEvent</samp></button></p>
+		<p><button id="zoomWithPen" type="button">Zoom with emulated <samp>PointerEvent</samp></button></p>
+		<p>
+			This demo runs the following code with different fingers:<br><br>
+			<samp>
+				finger1.wait(100).moveTo(250, 200, 0)<br>
+				&nbsp;&nbsp;.down().wait(500).moveBy(-200, 0, 1000).wait(500).up().wait(500)<br>
+				&nbsp;&nbsp;.down().wait(500).moveBy( 200, 0, 1000).wait(500).up().wait(500);<br>
+			</samp>
+			<br>
+			<samp>
+				finger2.wait(100).moveTo(350, 200, 0)<br>
+				&nbsp;&nbsp;.down().wait(500).moveBy( 200, 0, 1000).wait(500).up().wait(500)<br>
+				&nbsp;&nbsp;.down().wait(500).moveBy(-200, 0, 1000).wait(500).up().wait(500);<br>
+			</samp>
+		</p>
+		<script type="module">
+			import Hand from 'prosthetic-hand';
+			import {Map, LatLng, TileLayer, DomEvent} from 'leaflet';
 
-	</style>
+			const hand = new Hand({ timing: 'frame' });
+			const finger1 = hand.growFinger('touch');
+			const finger2 = hand.growFinger('touch');
+			const finger3 = hand.growFinger('pointer', { pointerType: 'pen' });
+			const finger4 = hand.growFinger('pointer', { pointerType: 'pen' });
 
-	<script>
+			document.getElementById('zoomWithTouch').addEventListener('click', zoomWithTouch);
+			document.getElementById('zoomWithPen').addEventListener('click', zoomWithPen);
 
-	// Trick Leaflet into believing we have a touchscreen (Chrome)
-	window.ontouchstart = function(){};
+			function zoomWithTouch() {
+				map.setZoom(4);
 
-	</script>
+				finger1.wait(100).moveTo(250, 200, 0)
+					.down().wait(500).moveBy(-200, 0, 1000).wait(500).up().wait(500)
+					.down().wait(500).moveBy( 200, 0, 1000).wait(500).up().wait(500);
 
-	<link href="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet.css" rel="stylesheet" type="text/css" />
-	<script src="https://leafletjs-cdn.s3.amazonaws.com/content/leaflet/master/leaflet-src.js"></script>
+				finger2.wait(100).moveTo(350, 200, 0)
+					.down().wait(500).moveBy( 200, 0, 1000).wait(500).up().wait(500)
+					.down().wait(500).moveBy(-200, 0, 1000).wait(500).up().wait(500);
+			}
 
-<!-- 	<script src='dist/prosthetic-hand.js'/></script> -->
-<!-- 	<script src='http://localhost:4567/prosthetic-hand.js'/></script> -->
-	<script src='../prosthetic-hand.js'/></script>
+			function zoomWithPen() {
+				finger3.wait(100).moveTo(250, 200, 0)
+					.down().wait(500).moveBy(-100, 0, 1000).wait(500).up().wait(500)
+					.down().wait(500).moveBy( 100, 0, 1000).wait(500).up().wait(500);
 
+				finger4.wait(100).moveTo(350, 200, 0)
+					.down().wait(500).moveBy( 100, 0, 1000).wait(500).up().wait(500)
+					.down().wait(500).moveBy(-100, 0, 1000).wait(500).up().wait(500);
+			}
 
+			const map = new Map('map', { center: new LatLng(45, 6), zoom: 4 });
+			const positron = new TileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attribution/">CartoDB</a>'
+			}).addTo(map);
 
-</head>
-<body>
-	<div id='map'></div>
-
-<!-- 	<p><button onclick='panWithMouse()'>Zoom with emulated <tt>MouseEvent</tt>s</button></p> -->
-	<p><button onclick='zoomWithTouch()'>Zoom with emulated <tt>TouchEvent</tt>s</button></p>
-	<p><button onclick='zoomWithPen()'  >Zoom with emulated <tt>PointerEvent</tt>s</button></p>
-
-	<p>
-	This demo runs the following code with different fingers:
-	<pre>
-finger1.wait(100).moveTo(250, 200, 0)
-	.down().wait(500).moveBy(-200, 0, 1000).wait(500).up().wait(500)
-	.down().wait(500).moveBy( 200, 0, 1000).wait(500).up().wait(500);
-
-finger2.wait(100).moveTo(350, 200, 0)
-	.down().wait(500).moveBy( 200, 0, 1000).wait(500).up().wait(500)
-	.down().wait(500).moveBy(-200, 0, 1000).wait(500).up().wait(500);
-	</pre>
-	</p>
-
-	<script>
-
-	var h = new Hand({
-		timing: 'frame'
-	});
-
-	var f1 = h.growFinger('touch');
-	var f2 = h.growFinger('touch');
-	var f3 = h.growFinger('pointer', { pointerType: 'pen' });
-	var f4 = h.growFinger('pointer', { pointerType: 'pen' });
-// 	var f5 = h.growFinger('mouse');
-
-
-	function zoomWithTouch() {
-
-		map.setZoom(4);
-
-		// Synchronous fingers:
-		f1.wait(100).moveTo(250, 200, 0)
-			.down().wait(500).moveBy(-200, 0, 1000).wait(500).up().wait(500)
-			.down().wait(500).moveBy( 200, 0, 1000).wait(500).up().wait(500);
-
-		f2.wait(100).moveTo(350, 200, 0)
-			.down().wait(500).moveBy( 200, 0, 1000).wait(500).up().wait(500)
-			.down().wait(500).moveBy(-200, 0, 1000).wait(500).up().wait(500);
-
-
-// Asynchronous fingers:
-// 		f1.wait(100).moveTo(250, 200, 0)
-// 			.wait(50).down().wait(450).moveBy(-20, 0, 1000).wait(500).up().wait(500)
-// // 			.down().wait(500).moveBy( 200, 0, 1000).wait(500).up().wait(500);
-//
-// 		f2.wait(100).moveTo(350, 200, 0)
-// 			.wait(0).down().wait(500).moveBy( 20, 0, 1000).wait(550).up().wait(450)
-// // 			.down().wait(500).moveBy(-200, 0, 1000).wait(500).up().wait(500);
-	}
-
-	function zoomWithPen() {
-		f3.wait(100).moveTo(250, 200, 0)
-			.down().wait(500).moveBy(-100, 0, 1000).wait(500).up().wait(500)
-			.down().wait(500).moveBy( 100, 0, 1000).wait(500).up().wait(500);
-
-		f4.wait(100).moveTo(350, 200, 0)
-			.down().wait(500).moveBy( 100, 0, 1000).wait(500).up().wait(500)
-			.down().wait(500).moveBy(-100, 0, 1000).wait(500).up().wait(500);
-	}
-
-    var myCenter = new L.LatLng(45, 6);
-    var map = new L.Map('map', {center: myCenter, zoom: 4});
-
-    var positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
-    }).addTo(map);
-
-
-
-    map.on('mousedown mouseup', function(ev){
-// 		console.log('L: ', performance.now(), JSON.stringify(ev.originalEvent));
-		console.log('L: ', performance.now(), ev.originalEvent);
-	});
-
-	L.DomEvent.on(map._container, 'touchstart touchend touchmove', function(ev){
-// 		console.log('T: ', performance.now(), ev.type, ev.touches.length, ev.changedTouches.length, ev);
-	});
-
-//     L.DomEvent.on(document.body, 'touchstart touchend touchmove', function(ev){
-//     L.DomEvent.on(document.body, 'touchstart touchend', function(ev){
-// 		console.log('B: ', ev.type, ev.touches.length, ev.changedTouches.length, ev.target, ev);
-// 	});
-//     map.on('mousemove', function(ev){ console.log(ev.originalEvent); });
-
-  </script>
-</body>
+			map.on('mousedown mouseup', (ev) => {
+				console.log('L: ', performance.now(), ev.originalEvent);
+			});
+		</script>
+	</body>
 </html>

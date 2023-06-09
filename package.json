@@ -19,9 +19,7 @@
   "license": "Beerware",
   "devDependencies": {
     "http-server": "^14.1.1",
-    "leafdoc": "^2.3.0"
-  },
-  "dependencies": {
-    "leaflet": "^1.9.3"
+    "leafdoc": "^2.3.0",
+    "leaflet": "^1.9.4"
   }
 }

@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "start": "http-server .",
-    "build-docs": "leafdoc --template node_modules/leafdoc/templates/basic --character 🖑 --output api-docs.html lib"
+    "build-docs": "leafdoc --template node_modules/leafdoc/templates/basic --character 🖐️ --output api-docs.html lib"
   },
   "repository": {
     "type": "git",

@@ -1,5 +1,5 @@
 
-# 🖑 prosthetic-hand 🖑
+# 🖐️ prosthetic-hand 🖐️
 
 A JavaScript library to emulate mouse/touch/pointer events, designed to help unit-test touch gestures.
 

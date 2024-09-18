@@ -15,7 +15,7 @@ npm install prosthetic-hand
 import Hand from 'prosthetic-hand';
 
 const hand = new Hand();
-const finger = h.growFinger('pointer', { pointerType: 'touch', pressure: 0.9 });
+const finger = hand.growFinger('pointer', { pointerType: 'touch', pressure: 0.9 });
 
 finger
   .wait(500)

@@ -1,3 +1,9 @@
+
+
+# v2.1.1
+
+* Convert `Hand` into an `EventTarget`. Miscellaneous ES5 code updates.
+
 # v2.1.0
 
 * Implemented mock `setPointerCapture()` and `releasePointerCapture()` (@ivansanchez)

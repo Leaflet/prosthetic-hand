@@ -1,5 +1,10 @@
 
 
+# v2.2.0
+
+* Implement shift-key emulation in fingers: `.shift()` and `.unshift()` methods
+* Fingers emulate `click` events on 'up' event <200msec after 'down' event (does not assert zero movement)
+
 # v2.1.1
 
 * Convert `Hand` into an `EventTarget`. Miscellaneous ES5 code updates.

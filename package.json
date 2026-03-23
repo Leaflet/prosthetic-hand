@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "prosthetic-hand",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Automate synthetic touch/pointer events",
   "exports": "./lib/Hand.js",
   "files": [

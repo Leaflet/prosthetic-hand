@@ -1,5 +1,9 @@
 
 
+# v2.2.1
+
+* Synthetic `click` events can be prevented by calling `preventDefault()` on the immediately previous `pointerup`. All events are cancelable.
+
 # v2.2.0
 
 * Implement shift-key emulation in fingers: `.shift()` and `.unshift()` methods

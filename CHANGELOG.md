@@ -1,5 +1,9 @@
 
 
+# v2.2.2
+
+* Fixed a `console.warn()`.
+
 # v2.2.1
 
 * Synthetic `click` events can be prevented by calling `preventDefault()` on the immediately previous `pointerup`. All events are cancelable.

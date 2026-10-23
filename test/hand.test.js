@@ -17,6 +17,14 @@ function record(...types) {
 	return log;
 }
 
+const canTouch = (() => {
+	try {
+		return !!new Touch({identifier: 0, target: document});
+	} catch {
+		return false;
+	}
+})();
+
 function events(log) {
 	return log.map(e => `${e.type} ${e.x},${e.y} @${e.t}`);
 }
@@ -32,7 +40,7 @@ test('mouse drag', () => {
 	]);
 });
 
-test('touch drag', () => {
+test.runIf(canTouch)('touch drag', () => {
 	const log = record('touchstart', 'touchmove', 'touchend');
 	new Hand({timing: '20ms'}).growFinger('touch').moveTo(10, 10, 0).down().moveBy(100, 0, 100).up();
 	vi.runAllTimers();
@@ -50,11 +58,15 @@ test('mouse tap within one tick', () => {
 	expect(events(log)).toEqual(['mousedown 10,10 @20', 'mouseup 10,10 @20']);
 });
 
-test('touch tap within one tick', () => {
+test.runIf(canTouch)('touch tap within one tick', () => {
 	const log = record('touchstart', 'touchend');
 	new Hand({timing: 'frame'}).growFinger('touch').moveTo(10, 10, 0).down().up();
 	vi.runAllTimers();
 	expect(events(log)).toEqual(['touchstart 10,10 @16', 'touchend 10,10 @16']);
+});
+
+test.skipIf(canTouch)('touch fingers throw without touch support', () => {
+	expect(() => new Hand().growFinger('touch')).toThrow('cannot synthesize touch events');
 });
 
 test('down and up respect their delay', () => {

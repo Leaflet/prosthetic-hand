@@ -9,10 +9,14 @@ env:
   PLAYWRIGHT_BROWSERS_PATH: .playwright-browsers
 
 jobs:
-  test:
+  # separate jobs rather than a matrix so that they show up flat in the run summary
+  test-chromium:
+    name: test (chromium)
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    steps:
+    env:
+      TEST_BROWSER: chromium
+    steps: &test-steps
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
@@ -22,6 +26,22 @@ jobs:
       - uses: actions/cache@v6
         with:
           path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
-          key: pw-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-      - run: npx playwright install --only-shell chromium
+          key: pw-${{ runner.os }}-${{ env.TEST_BROWSER }}-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --only-shell "$TEST_BROWSER"
       - run: npm test
+
+  test-firefox:
+    name: test (firefox)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      TEST_BROWSER: firefox
+    steps: *test-steps
+
+  test-webkit:
+    name: test (webkit)
+    runs-on: macos-latest
+    timeout-minutes: 5
+    env:
+      TEST_BROWSER: webkit
+    steps: *test-steps

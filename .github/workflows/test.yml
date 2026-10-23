@@ -2,9 +2,13 @@ name: Test
 
 on: [push, pull_request]
 
+env:
+  PLAYWRIGHT_BROWSERS_PATH: .playwright-browsers
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -12,5 +16,9 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - uses: actions/cache@v6
+        with:
+          path: ${{ env.PLAYWRIGHT_BROWSERS_PATH }}
+          key: pw-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - run: npx playwright install --only-shell chromium
       - run: npm test

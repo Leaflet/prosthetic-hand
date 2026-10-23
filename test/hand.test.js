@@ -133,6 +133,22 @@ test('isPrimary', () => {
 	]);
 });
 
+test('pointer button and buttons', () => {
+	const log = [];
+	const listener = e => log.push(`${e.type} ${e.button} ${e.buttons}`);
+	const types = ['pointerdown', 'pointermove', 'pointerup'];
+	for (const type of types) document.addEventListener(type, listener);
+	onTestFinished(() => {
+		for (const type of types) document.removeEventListener(type, listener);
+	});
+
+	new Hand({timing: '10ms'}).growFinger('pointer').moveTo(10, 10).down().moveBy(20, 0, 20).up();
+	vi.runAllTimers();
+	expect(log).toEqual([
+		'pointermove -1 0', 'pointerdown 0 1', 'pointermove -1 1', 'pointerup 0 0'
+	]);
+});
+
 test('run resolves with the hand', async () => {
 	const hand = new Hand({timing: '10ms'});
 	const finger = hand.growFinger('mouse').moveTo(10, 10, 20);

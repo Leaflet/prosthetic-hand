@@ -17,28 +17,44 @@ function record(...types) {
 	return log;
 }
 
-function expectDrag(log, down, move, up) {
-	expect(log[0].type).toBe(down);
-	expect(log.slice(1, -1).map(e => e.type)).toEqual(Array(log.length - 2).fill(move));
-	expect(log.length).toBeGreaterThan(3);
-	expect(log.at(-1)).toMatchObject({type: up, x: 110, y: 10});
-	for (let i = 1; i < log.length; i++) expect(log[i].x).toBeGreaterThan(log[i - 1].x);
+function events(log) {
+	return log.map(e => `${e.type} ${e.x},${e.y} @${e.t}`);
 }
 
 test('mouse drag', () => {
 	const log = record('mousedown', 'mousemove', 'mouseup');
 	new Hand({timing: '20ms'}).growFinger('mouse').moveTo(10, 10, 0).down().moveBy(100, 0, 100).up();
 	vi.runAllTimers();
-
-	expectDrag(log, 'mousedown', 'mousemove', 'mouseup');
+	expect(events(log)).toEqual([
+		'mousemove 10,10 @20', 'mousedown 10,10 @20',
+		'mousemove 50,10 @40', 'mousemove 70,10 @60', 'mousemove 90,10 @80', 'mousemove 110,10 @100',
+		'mouseup 110,10 @100'
+	]);
 });
 
 test('touch drag', () => {
 	const log = record('touchstart', 'touchmove', 'touchend');
 	new Hand({timing: '20ms'}).growFinger('touch').moveTo(10, 10, 0).down().moveBy(100, 0, 100).up();
 	vi.runAllTimers();
+	expect(events(log)).toEqual([
+		'touchstart 10,10 @20',
+		'touchmove 50,10 @40', 'touchmove 70,10 @60', 'touchmove 90,10 @80', 'touchmove 110,10 @100',
+		'touchend 110,10 @100'
+	]);
+});
 
-	expectDrag(log, 'touchstart', 'touchmove', 'touchend');
+test('mouse tap within one tick', () => {
+	const log = record('mousedown', 'mouseup');
+	new Hand({timing: '20ms'}).growFinger('mouse').moveTo(10, 10, 0).down().up(5);
+	vi.runAllTimers();
+	expect(events(log)).toEqual(['mousedown 10,10 @20', 'mouseup 10,10 @20']);
+});
+
+test('touch tap within one tick', () => {
+	const log = record('touchstart', 'touchend');
+	new Hand({timing: 'frame'}).growFinger('touch').moveTo(10, 10, 0).down().up();
+	vi.runAllTimers();
+	expect(events(log)).toEqual(['touchstart 10,10 @16', 'touchend 10,10 @16']);
 });
 
 test('down and up respect their delay', () => {

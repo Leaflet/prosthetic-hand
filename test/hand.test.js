@@ -64,3 +64,22 @@ test('down and up respect their delay', () => {
 
 	expect(log.map(e => [e.type, e.t])).toEqual([['mousemove', 10], ['mousedown', 50], ['mouseup', 80]]);
 });
+
+test('moves without a delay are instant', () => {
+	const log = record('mousedown', 'mousemove', 'mouseup');
+	new Hand({timing: '20ms'}).growFinger('mouse').moveTo(10, 10).down().moveBy(100, 0).wait().up();
+	vi.runAllTimers();
+	expect(events(log)).toEqual(['mousemove 10,10 @20', 'mousedown 10,10 @20', 'mousemove 110,10 @20', 'mouseup 110,10 @20']);
+});
+
+test('sync without a delay', () => {
+	const log = record('mousedown');
+	const hand = new Hand({timing: '10ms'});
+	const f1 = hand.growFinger('mouse').moveTo(10, 10).wait(50);
+	const f2 = hand.growFinger('mouse').moveTo(20, 20);
+	hand.sync();
+	f1.down();
+	f2.down();
+	vi.runAllTimers();
+	expect(events(log)).toEqual(['mousedown 10,10 @50', 'mousedown 20,20 @50']);
+});

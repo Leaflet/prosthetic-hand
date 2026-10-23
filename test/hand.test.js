@@ -83,3 +83,10 @@ test('sync without a delay', () => {
 	vi.runAllTimers();
 	expect(events(log)).toEqual(['mousedown 10,10 @50', 'mousedown 20,20 @50']);
 });
+
+test('mouse drag off the viewport', () => {
+	const log = record('mousedown', 'mousemove', 'mouseup');
+	new Hand({timing: '20ms'}).growFinger('mouse').moveTo(10, 10).down().moveBy(-60, 0, 40).up();
+	vi.runAllTimers();
+	expect(events(log)).toEqual(['mousemove 10,10 @20', 'mousedown 10,10 @20', 'mousemove -50,10 @40', 'mouseup -50,10 @40']);
+});

@@ -132,3 +132,24 @@ test('isPrimary', () => {
 		'pointerdown 90 true @90', 'pointerup 90 true @100'
 	]);
 });
+
+test('run resolves with the hand', async () => {
+	const hand = new Hand({timing: '10ms'});
+	const finger = hand.growFinger('mouse').moveTo(10, 10, 20);
+	const done = hand.run();
+	vi.runAllTimers();
+	expect(await done).toBe(hand);
+
+	finger.moveBy(10, 0, 20);
+	const doneAgain = hand.run();
+	vi.runAllTimers();
+	expect(await doneAgain).toBe(hand);
+});
+
+test('run resolves when there is nothing left to do', async () => {
+	expect(await new Hand().run()).toBeInstanceOf(Hand);
+
+	const hand = new Hand({timing: 'instant'});
+	hand.growFinger('mouse').moveTo(10, 10, 20);
+	expect(await hand.run()).toBe(hand);
+});

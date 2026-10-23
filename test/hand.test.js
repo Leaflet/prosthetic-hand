@@ -90,3 +90,23 @@ test('mouse drag off the viewport', () => {
 	vi.runAllTimers();
 	expect(events(log)).toEqual(['mousemove 10,10 @20', 'mousedown 10,10 @20', 'mousemove -50,10 @40', 'mouseup -50,10 @40']);
 });
+
+test('queuing moves from an event listener', () => {
+	const hand = new Hand({timing: '10ms'});
+	const finger = hand.growFinger('mouse');
+	const ticks = [];
+	let stops = 0;
+	hand.addEventListener('tick', () => ticks.push(performance.now()));
+	hand.addEventListener('stop', () => stops++);
+	const log = record('mouseup', 'mousemove');
+	document.addEventListener('mouseup', () => finger.moveBy(30, 0, 30), {once: true});
+
+	finger.moveTo(10, 10).down().up();
+	vi.runAllTimers();
+	expect(events(log)).toEqual([
+		'mousemove 10,10 @10', 'mouseup 10,10 @10',
+		'mousemove 20,10 @20', 'mousemove 30,10 @30', 'mousemove 40,10 @40'
+	]);
+	expect(ticks).toEqual([10, 20, 30, 40]);
+	expect(stops).toBe(1);
+});

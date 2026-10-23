@@ -110,3 +110,25 @@ test('queuing moves from an event listener', () => {
 	expect(ticks).toEqual([10, 20, 30, 40]);
 	expect(stops).toBe(1);
 });
+
+test('isPrimary', () => {
+	const log = [];
+	const listener = (e) => log.push(`${e.type} ${e.clientX} ${e.isPrimary} @${performance.now()}`);
+	for (const type of ['pointerdown', 'pointerup']) document.addEventListener(type, listener);
+	onTestFinished(() => {
+		for (const type of ['pointerdown', 'pointerup']) document.removeEventListener(type, listener);
+	});
+
+	const hand = new Hand({timing: '10ms'});
+	hand.growFinger('pointer', {pointerType: 'touch'}).moveTo(10, 10).down(10).up(20).down(10).up(20);
+	hand.growFinger('pointer', {pointerType: 'touch'}).moveTo(50, 50).down(20).up(30).down(20).up(10);
+	hand.growFinger('pointer', {pointerType: 'mouse'}).moveTo(90, 90).wait(90).down().up(10);
+	vi.runAllTimers();
+	expect(log).toEqual([
+		'pointerdown 10 true @10', 'pointerdown 50 false @20', 'pointerup 10 true @30',
+		// the primary lifted while another touch is still down, so neither is primary until both lift
+		'pointerdown 10 false @40', 'pointerup 50 false @50', 'pointerup 10 false @60',
+		'pointerdown 50 true @70', 'pointerup 50 true @80',
+		'pointerdown 90 true @90', 'pointerup 90 true @100'
+	]);
+});
